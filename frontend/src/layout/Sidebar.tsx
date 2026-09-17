@@ -75,14 +75,14 @@ export function SidebarContent({
           <LogoLockup variant="light" width={130} />
         )}
       </div>
-      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2 py-2">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2 py-1.5">
         {nav.map((node, i) => {
-          if (node.type === 'separator') return <div key={i} className="my-1.5 border-t border-neutral-800" />;
+          if (node.type === 'separator') return <div key={i} className="my-1 border-t border-neutral-800" />;
           if (node.type === 'group') {
             return (
-              <div key={i} className="mt-2.5 first:mt-0">
+              <div key={i} className="mt-2 first:mt-0">
                 {!collapsed && (
-                  <div className="px-3 pb-0.5 pt-1 text-group-label text-neutral-500">{t(node.labelKey)}</div>
+                  <div className="px-3 pb-0 pt-0.5 text-group-label text-neutral-500">{t(node.labelKey)}</div>
                 )}
                 <div className="space-y-0.5">
                   {node.items.map((item) => (
@@ -109,31 +109,36 @@ export function SidebarContent({
           );
         })}
       </nav>
-      {/* Stacked rather than inline: beside the label the lockup was capped
-          by the 240px sidebar (worse in Albanian, where "Fuqizuar nga" is
-          wider). On its own line it gets the full content width. */}
-      {/* The manual is a static page served by this same container, so it
-          opens with no internet connection — the deployments are on-premise
-          and some sites have none. */}
-      <a
-        href="/manuali.html"
-        target="_blank"
-        rel="noreferrer"
-        title={t('nav.manual')}
-        className={clsx(
-          'mx-1.5 mb-1 flex shrink-0 items-center gap-3 rounded-md px-3 py-2 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100',
-          collapsed && 'justify-center px-0'
+      {/* Bottom block: the manual sits here rather than at the end of the
+          nav list, so the scrolling nav keeps its full height and the link
+          reads as a footer item, not another page in the menu. The manual is
+          a static page served by this same container, so it opens with no
+          internet connection — the deployments are on-premise and some sites
+          have none. */}
+      <div className="shrink-0 border-t border-neutral-800 pt-1">
+        <a
+          href="/manuali.html"
+          target="_blank"
+          rel="noreferrer"
+          title={t('nav.manual')}
+          className={clsx(
+            'mx-1.5 flex items-center gap-3 rounded-md px-3 py-1.5 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100',
+            collapsed && 'justify-center px-0'
+          )}
+        >
+          <BookOpen size={18} className="shrink-0" />
+          {!collapsed && <span className="truncate text-body">{t('nav.manual')}</span>}
+        </a>
+        {/* Stacked rather than inline: beside the label the lockup was capped
+            by the 240px sidebar (worse in Albanian, where "Fuqizuar nga" is
+            wider). On its own line it gets the full content width. */}
+        {!collapsed && (
+          <div className="flex flex-col items-center gap-0.5 px-3 pb-1.5 pt-0.5">
+            <span className="text-[10px] uppercase tracking-wide text-neutral-600">{t('common.poweredBy')}</span>
+            <SolisLabsLogo width={148} variant="light" />
+          </div>
         )}
-      >
-        <BookOpen size={18} className="shrink-0" />
-        {!collapsed && <span className="truncate text-body">{t('nav.manual')}</span>}
-      </a>
-      {!collapsed && (
-        <div className="flex shrink-0 flex-col items-center gap-1 px-3 pb-2 pt-1">
-          <span className="text-[10px] uppercase tracking-wide text-neutral-600">{t('common.poweredBy')}</span>
-          <SolisLabsLogo width={180} variant="light" />
-        </div>
-      )}
+      </div>
       {showCollapseToggle && onToggleCollapse && (
         <div className="shrink-0 border-t border-neutral-800 p-1.5">
           <button
