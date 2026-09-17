@@ -6,8 +6,15 @@ turns them into lateness, overtime, absence and leave, and produces a monthly
 payroll run.
 
 This README is the operator's runbook: what YOU do, in order, from the day the
-device is installed. The client's own manual is a separate, non-technical
-Albanian document: [`client/MANUALI.md`](client/MANUALI.md).
+device is installed.
+
+The client's staff get their own non-technical Albanian manual, and they do
+not need this file or a copy of anything: the app serves the manual itself at
+`http://<pc-ip>:8080/manuali.html`, linked from the sidebar as **Manuali**. It
+is a static page inside the frontend image, so it opens with no internet
+connection — some sites have none. The markdown source lives at
+[`client/MANUALI.md`](client/MANUALI.md); edit it and
+`frontend/public/manuali.html` together, they do not track each other.
 
 ---
 

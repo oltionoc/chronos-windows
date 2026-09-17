@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { useAuth } from '../auth/AuthContext';
@@ -112,6 +112,22 @@ export function SidebarContent({
       {/* Stacked rather than inline: beside the label the lockup was capped
           by the 240px sidebar (worse in Albanian, where "Fuqizuar nga" is
           wider). On its own line it gets the full content width. */}
+      {/* The manual is a static page served by this same container, so it
+          opens with no internet connection — the deployments are on-premise
+          and some sites have none. */}
+      <a
+        href="/manuali.html"
+        target="_blank"
+        rel="noreferrer"
+        title={t('nav.manual')}
+        className={clsx(
+          'mx-1.5 mb-1 flex shrink-0 items-center gap-3 rounded-md px-3 py-2 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-100',
+          collapsed && 'justify-center px-0'
+        )}
+      >
+        <BookOpen size={18} className="shrink-0" />
+        {!collapsed && <span className="truncate text-body">{t('nav.manual')}</span>}
+      </a>
       {!collapsed && (
         <div className="flex shrink-0 flex-col items-center gap-1 px-3 pb-2 pt-1">
           <span className="text-[10px] uppercase tracking-wide text-neutral-600">{t('common.poweredBy')}</span>

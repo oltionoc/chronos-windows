@@ -81,7 +81,8 @@
     "settings": "Cilësimet",
     "settingsUsers": "Llogaritë e Përdoruesve",
     "settingsProfile": "Profili Im",
-    "configHolidays": "Festat"
+    "configHolidays": "Festat",
+    "manual": "Manuali"
   },
   "status": {
     "attendance": {

@@ -1,0 +1,1041 @@
+<!doctype html>
+<html lang="sq">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.svg">
+<style>
+  :root { color-scheme: light dark; }
+  html { -webkit-text-size-adjust: 100%; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+<title>Manuali i Chronos</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #F2F5F6;
+    --surface: #FFFFFF;
+    --surface-2: #FAFBFB;
+    --ink: #19191B;
+    --ink-2: #3F4650;
+    --muted: #616B78;
+    --rule: #D6DDE2;
+    --rule-soft: #E6EBEE;
+    --chip: #232326;
+    --chip-ink: #D2FC11;
+    --accent-line: #232326;
+    --danger: #B91C1C;
+    --danger-soft: #FDECEC;
+    --warning: #B45309;
+    --warning-soft: #FCF3E3;
+    --success: #15803D;
+    --success-soft: #EAF6EE;
+    --shadow: 0 1px 2px rgba(25, 25, 27, .06), 0 8px 24px -16px rgba(25, 25, 27, .18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #101114;
+      --surface: #191B1F;
+      --surface-2: #15171A;
+      --ink: #EDEFF1;
+      --ink-2: #C3C9D0;
+      --muted: #949CA6;
+      --rule: #2C3037;
+      --rule-soft: #23262B;
+      --chip: #D2FC11;
+      --chip-ink: #19191B;
+      --accent-line: #D2FC11;
+      --danger: #F87171;
+      --danger-soft: #2A1718;
+      --warning: #F0B056;
+      --warning-soft: #2A2113;
+      --success: #5DCB84;
+      --success-soft: #142318;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 28px -18px rgba(0, 0, 0, .7);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #101114;
+    --surface: #191B1F;
+    --surface-2: #15171A;
+    --ink: #EDEFF1;
+    --ink-2: #C3C9D0;
+    --muted: #949CA6;
+    --rule: #2C3037;
+    --rule-soft: #23262B;
+    --chip: #D2FC11;
+    --chip-ink: #19191B;
+    --accent-line: #D2FC11;
+    --danger: #F87171;
+    --danger-soft: #2A1718;
+    --warning: #F0B056;
+    --warning-soft: #2A2113;
+    --success: #5DCB84;
+    --success-soft: #142318;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 28px -18px rgba(0, 0, 0, .7);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .masthead {
+    background: var(--surface);
+    border-bottom: 1px solid var(--rule);
+  }
+  .masthead-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 28px 16px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 16px 28px;
+  }
+  .wordmark {
+    font-family: Archivo, "IBM Plex Sans", sans-serif;
+    font-weight: 700;
+    font-size: clamp(30px, 6vw, 42px);
+    letter-spacing: -.02em;
+    line-height: 1;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .wordmark span {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .masthead-note {
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 46ch;
+    margin: 0;
+  }
+
+  .layout {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 16px 72px;
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: 48px;
+    align-items: start;
+  }
+
+  /* ---- Contents ---- */
+  .toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); padding-top: 32px; }
+  .toc-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 12px;
+  }
+  .toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px; }
+  .toc a {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 8px;
+    padding: 5px 8px 5px 6px;
+    border-radius: 5px;
+    color: var(--ink-2);
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+  .toc a .n { color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: 12px; padding-top: 2px; }
+  .toc a:hover { background: var(--rule-soft); color: var(--ink); }
+  .toc a.current { background: var(--chip); color: var(--chip-ink); }
+  .toc a.current .n { color: var(--chip-ink); opacity: .75; }
+  .toc a:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 2px; }
+
+  .toc-mobile { display: none; }
+
+  /* ---- Prose ---- */
+  main { padding-top: 32px; min-width: 0; }
+  .lede {
+    font-size: 17px;
+    color: var(--ink-2);
+    max-width: 66ch;
+    border-left: 3px solid var(--accent-line);
+    padding-left: 18px;
+    margin: 0 0 40px;
+  }
+
+  section { margin-bottom: 52px; scroll-margin-top: 24px; }
+  section > * { max-width: 68ch; }
+
+  h2 {
+    font-family: Archivo, sans-serif;
+    font-size: clamp(21px, 3.4vw, 26px);
+    font-weight: 600;
+    letter-spacing: -.01em;
+    line-height: 1.22;
+    margin: 0 0 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    text-wrap: balance;
+  }
+  h2 .num {
+    flex: none;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--chip);
+    color: var(--chip-ink);
+    padding: 3px 7px;
+    border-radius: 4px;
+    transform: translateY(-2px);
+  }
+  h3 {
+    font-family: Archivo, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 30px 0 10px;
+    letter-spacing: .005em;
+  }
+  p { margin: 0 0 14px; }
+  strong { font-weight: 600; }
+  a { color: var(--ink); text-decoration-color: var(--muted); text-underline-offset: 2px; }
+
+  ul, ol { margin: 0 0 16px; padding-left: 22px; }
+  li { margin-bottom: 7px; }
+  li::marker { color: var(--muted); }
+  ol.steps { counter-reset: s; list-style: none; padding-left: 0; }
+  ol.steps > li {
+    counter-increment: s;
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  ol.steps > li::before {
+    content: counter(s);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+  }
+
+  code, .mono, td.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .92em; }
+  code {
+    background: var(--rule-soft);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  /* ---- Tables ---- */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: var(--surface);
+    margin: 0 0 20px;
+    max-width: 100%;
+  }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  th {
+    font-family: Archivo, sans-serif;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--surface-2);
+    white-space: nowrap;
+  }
+  tr:last-child td { border-bottom: 0; }
+  td:first-child { font-weight: 500; }
+  .num-col { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* severity marker on the alert table */
+  tr.sev-urgent td:first-child { box-shadow: inset 3px 0 0 var(--danger); }
+  tr.sev-watch td:first-child { box-shadow: inset 3px 0 0 var(--warning); }
+  tr.sev-info td:first-child { box-shadow: inset 3px 0 0 var(--success); }
+
+  /* ---- Callouts ---- */
+  .note {
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--muted);
+    background: var(--surface);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 16px;
+    margin: 0 0 20px;
+    font-size: 15px;
+  }
+  .note p:last-child { margin-bottom: 0; }
+  .note .tag {
+    display: block;
+    font-family: Archivo, sans-serif;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    color: var(--muted);
+  }
+  .note.warn { border-left-color: var(--warning); background: var(--warning-soft); }
+  .note.warn .tag { color: var(--warning); }
+  .note.stop { border-left-color: var(--danger); background: var(--danger-soft); }
+  .note.stop .tag { color: var(--danger); }
+
+  /* ---- Payroll formula block ---- */
+  .formula {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 14px;
+    line-height: 1.9;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin: 0 0 20px;
+    overflow-x: auto;
+  }
+  .formula .op { color: var(--muted); display: inline-block; width: 1.2em; }
+  .formula .total { border-top: 1px solid var(--rule); display: block; margin-top: 6px; padding-top: 6px; font-weight: 500; }
+
+  footer {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 28px 16px calc(env(safe-area-inset-bottom, 0px) + 40px);
+    border-top: 1px solid var(--rule);
+    color: var(--muted);
+    font-size: 13.5px;
+  }
+  footer p { max-width: 70ch; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .toc { display: none; }
+    .toc-mobile { display: block; padding-top: 28px; }
+    .toc-mobile details {
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .toc-mobile summary {
+      font-family: Archivo, sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .toc-mobile ol { list-style: none; margin: 12px 0 0; padding: 0; }
+    .toc-mobile a { display: grid; grid-template-columns: 24px 1fr; gap: 8px; padding: 6px 0; color: var(--ink-2); text-decoration: none; font-size: 15px; }
+    .toc-mobile a .n { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); }
+    main { padding-top: 26px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+
+  @media print {
+    body { background: #fff; color: #000; font-size: 11pt; }
+    .toc, .toc-mobile, .masthead-note { display: none; }
+    .layout { display: block; padding: 0; max-width: none; }
+    section { page-break-inside: avoid; margin-bottom: 26px; }
+    h2 { page-break-after: avoid; }
+    .table-wrap, .note, .formula { break-inside: avoid; border-color: #999; }
+    .note { background: #fff; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <h1 class="wordmark"><span>Manuali i përdorimit</span>Chronos</h1>
+    <p class="masthead-note">
+      Sistemi i orarit të punës dhe i pagave. Ky manual është për personin që e
+      përdor sistemin çdo ditë, nuk kërkon njohuri teknike.
+    </p>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" aria-label="Përmbajtja">
+    <p class="toc-title">Përmbajtja</p>
+    <ol id="tocList"></ol>
+  </nav>
+
+  <div class="toc-mobile">
+    <details>
+      <summary>Përmbajtja</summary>
+      <ol id="tocListMobile"></ol>
+    </details>
+  </div>
+
+  <main>
+    <p class="lede">
+      Lexojeni një herë nga fillimi. Pastaj kthehuni vetëm te pjesa që ju duhet.
+      Kapitulli <strong>4. Njoftimet</strong> dhe kapitulli <strong>16. Çka të
+      bëni kur…</strong> janë dy pjesët që do t'i hapni më shpesh.
+    </p>
+
+    <section id="s1">
+      <h2><span class="num">01</span> Çka bën ky sistem</h2>
+      <p>
+        Punonjësi shenjon me gisht ose me kartelë në aparat kur vjen dhe kur
+        shkon. Aparati i dërgon ato shenjime te Chronos. Sistemi pastaj:
+      </p>
+      <ul>
+        <li>llogarit kush ka ardhur me vonesë dhe sa minuta,</li>
+        <li>llogarit orët shtesë,</li>
+        <li>shënon kush ka munguar dhe kush ka qenë me leje,</li>
+        <li>në fund të muajit përgatit pagën me zbritjet dhe shtesat.</li>
+      </ul>
+      <p>
+        Ju nuk shkruani asgjë me dorë për prezencën. Ju vetëm kontrolloni dhe
+        konfirmoni.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <caption class="sr-only" hidden>Rolet në sistem</caption>
+          <thead><tr><th>Roli</th><th>Çka sheh</th></tr></thead>
+          <tbody>
+            <tr><td>Administrator</td><td>Të gjitha lokacionet dhe të gjitha të dhënat.</td></tr>
+            <tr><td>Menaxher</td><td>Vetëm lokacionin e vet, por atje ka qasje të plotë.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="s2">
+      <h2><span class="num">02</span> Si hyni në sistem</h2>
+      <ol class="steps">
+        <li>Hapni shfletuesin (Chrome, Edge) në kompjuter.</li>
+        <li>Shkruani adresën që ju është dhënë, për shembull <code>http://192.168.1.50:8080</code>.</li>
+        <li>Shkruani emrin e përdoruesit dhe fjalëkalimin.</li>
+      </ol>
+      <p>
+        <strong>Herën e parë</strong> sistemi ju detyron ta ndërroni
+        fjalëkalimin. Kjo është e qëllimshme. Zgjidhni një fjalëkalim që nuk e
+        përdorni gjetiu dhe mos ia jepni askujt: çdo veprim në sistem
+        regjistrohet nën emrin tuaj.
+      </p>
+      <p>
+        Lart djathtas mund të ndërroni gjuhën: <strong>SQ</strong> (shqip) ose
+        <strong>EN</strong> (anglisht).
+      </p>
+    </section>
+
+    <section id="s3">
+      <h2><span class="num">03</span> Faqja kryesore (Paneli)</h2>
+      <p>Kur hyni, shihni kartela me numrat e ditës së sotme:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Kartela</th><th>Çka tregon</th></tr></thead>
+          <tbody>
+            <tr><td>Prezentë</td><td>Sa punonjës kanë ardhur sot. Brenda së njëjtës kartelë shkruan edhe sa janë <strong>aktualisht në objekt</strong>; dikush që ka shenjuar daljen nuk numërohet më.</td></tr>
+            <tr><td>Me vonesë</td><td>Sa kanë ardhur pas orarit, duke llogaritur edhe minutat e tolerancës.</td></tr>
+            <tr><td>Me leje</td><td>Kush është me leje sot dhe për çfarë arsye.</td></tr>
+            <tr><td>Në pushim</td><td>Kush ka shenjuar daljen për pushim dhe nuk është kthyer ende.</td></tr>
+            <tr><td>Mungesa</td><td>Kush ishte i planifikuar të punojë sot dhe nuk ka shenjuar.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Poshtë kartelave keni grafikun e javës dhe njoftimet më të fundit.</p>
+    </section>
+
+    <section id="s4">
+      <h2><span class="num">04</span> Njoftimet</h2>
+      <p>
+        Menyja <strong>Njoftimet</strong> është vendi më i rëndësishëm i
+        sistemit. Aty dalin problemet që sistemi i gjen vetë.
+        <strong>Hapeni çdo ditë.</strong>
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Njoftimi</th><th>Çka do të thotë</th><th>Çka të bëni</th></tr></thead>
+          <tbody>
+            <tr class="sev-watch"><td>Nuk ka dalje të regjistruar</td><td>Punonjësi ka shenjuar hyrjen, jo daljen</td><td>Pyeteni kur ka dalë; korrigjoni ose lëreni si është</td></tr>
+            <tr class="sev-watch"><td>Filloi pushimin, nuk u kthye</td><td>Ka shenjuar daljen për pushim dhe s'është kthyer</td><td>Kontrolloni atë ditë</td></tr>
+            <tr class="sev-urgent"><td>Nuk ka shenjuar sot</td><td>Ishte i planifikuar, s'ka ardhur, nuk është me leje</td><td>Telefonojini; nëse është me leje, shtojeni lejen</td></tr>
+            <tr class="sev-watch"><td>Shenjim jashtë orarit</td><td>Ka shenjuar në një ditë ose orë kur nuk punon</td><td>Shikoni a ka ndërruar turn me dikë, ose a është gabim</td></tr>
+            <tr class="sev-watch"><td>Orë shtesë në pritje aprovimi</td><td>Ka orë shtesë që nuk paguhen pa aprovim</td><td>Shkoni te Prezenca Ditore dhe aprovojini nëse janë të vërteta</td></tr>
+            <tr class="sev-watch"><td>Shenjime të pazgjidhura</td><td>Aparati dërgoi shenjim nga një ID që nuk njihet</td><td>Dikush nuk është regjistruar si duhet te pajisja</td></tr>
+            <tr class="sev-urgent"><td>Pajisja nuk është sinkronizuar 24 orë</td><td>Aparati është fikur ose ka humbur rrjetin</td><td>Kontrolloni rrymën dhe kabllin e rrjetit</td></tr>
+            <tr class="sev-urgent"><td>Ora e pajisjes është gabim</td><td>Ora e aparatit nuk përputhet me serverin</td><td><strong>Urgjente.</strong> Rregulloni orën e aparatit, pastaj rillogarisni ato ditë</td></tr>
+            <tr class="sev-urgent"><td>Kopja rezervë dështoi / mungon</td><td>Të dhënat nuk po ruhen</td><td>Njoftoni menjëherë personin që e mirëmban sistemin</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note stop">
+        <span class="tag">Pse ora e pajisjes është urgjente</span>
+        <p>
+          Çdo shenjim e merr orën nga aparati, jo nga kompjuteri. Nëse ora e
+          aparatit është gabim një orë, atëherë të gjithë punonjësit dalin një
+          orë me vonesë, dhe kjo shkon direkt në pagë.
+        </p>
+      </div>
+    </section>
+
+    <section id="s5">
+      <h2><span class="num">05</span> Punonjësit</h2>
+      <p>Për të shtuar një punonjës: <strong>Punonjësit → Punonjës i Ri</strong>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Fusha</th><th>Çka shkruani</th></tr></thead>
+          <tbody>
+            <tr><td>Kodi i punonjësit</td><td>Numri juaj i brendshëm, p.sh. <code>P-001</code>. Duhet të jetë unik.</td></tr>
+            <tr><td>Emri dhe mbiemri</td><td>Si në dokument.</td></tr>
+            <tr><td>Lokacioni</td><td>Ku punon.</td></tr>
+            <tr><td>Data e fillimit</td><td>Kur ka nisur punën.</td></tr>
+            <tr><td>Paga bazë (€)</td><td>Paga mujore mbi të cilën llogariten zbritjet dhe shtesat.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Pastaj hapni punonjësin dhe plotësoni dy gjëra të rëndësishme:</p>
+      <h3>a) Regjistrimet në pajisje</h3>
+      <p>
+        Lidhja mes njeriut dhe aparatit. Te aparati çdo person ka një numër
+        (ID). Ai numër shkruhet këtu. Pa këtë, shenjimet e tij vijnë por
+        sistemi nuk di se kujt i takojnë.
+      </p>
+      <h3>b) Caktimet e turnit</h3>
+      <p>Cili orar i takon. Shih kapitullin 7.</p>
+      <div class="note">
+        <span class="tag">Shënim</span>
+        <p>
+          Punonjësit nuk fshihen. Nëse dikush largohet nga puna, ndryshoni
+          <strong>Statusin</strong> në <em>I larguar</em>. Kështu historiku dhe
+          pagat e vjetra mbeten të sakta.
+        </p>
+      </div>
+    </section>
+
+    <section id="s6">
+      <h2><span class="num">06</span> Orari i punës (turnet)</h2>
+      <p>
+        Orari përcakton se kur pritet të punojë dikush. Krijohet një herë dhe u
+        caktohet shumë punonjësve. <strong>Orari i Punës → Orar i Ri</strong>.
+      </p>
+      <ul>
+        <li><strong>Emri</strong> — p.sh. <em>Turni i mëngjesit</em>.</li>
+        <li><strong>Lokacioni</strong>.</li>
+        <li>
+          <strong>Minutat e tolerancës</strong> — sa minuta vonesë falen. Me
+          tolerancë <span class="mono">5</span> dhe orar që fillon
+          <span class="mono">08:00</span>, dikush që shenjon
+          <span class="mono">08:04</span> nuk është me vonesë;
+          <span class="mono">08:10</span> është me vonesë 10 minuta, të
+          numëruara nga 08:00 dhe jo nga 08:05.
+        </li>
+      </ul>
+      <p>Pastaj për çdo ditë të javës:</p>
+      <ul>
+        <li><strong>Ndizeni ose fikeni ditën</strong> — e fikur do të thotë ditë pushimi.</li>
+        <li><strong>Orari i punës</strong> — p.sh. <span class="mono">08:00 – 16:00</span>.</li>
+        <li>
+          <strong>Shto bllok pune</strong> — për turne të ndara, p.sh.
+          <span class="mono">08:00 – 12:00</span> dhe pastaj
+          <span class="mono">17:00 – 21:00</span>. Koha në mes nuk numërohet as
+          si punë, as si dalje e parakohshme.
+        </li>
+        <li>
+          <strong>Shto pushim</strong> — dritarja e pushimit, p.sh.
+          <span class="mono">12:00 – 12:30</span>. Shenjimet brenda kësaj kohe
+          njihen si pushim, jo si dalje nga puna.
+        </li>
+      </ul>
+    </section>
+
+    <section id="s7">
+      <h2><span class="num">07</span> Caktimi i turnit te punonjësi</h2>
+      <p>
+        Hapni punonjësin → skeda <strong>Caktimet e Turnit</strong> →
+        <strong>Cakto Turn</strong>.
+      </p>
+      <ul>
+        <li><strong>Në fuqi nga</strong> — data prej së cilës vlen ky orar.</li>
+        <li><strong>Në fuqi deri</strong> — lëreni bosh nëse vazhdon.</li>
+      </ul>
+      <p>
+        <strong>Një punonjës mund të ketë disa turne njëkohësisht</strong>, me
+        kusht që të punojnë ditë të ndryshme të javës:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Orari</th><th>Ditët</th><th>Koha</th></tr></thead>
+          <tbody>
+            <tr><td>Turni i kafes</td><td>E hënë, e martë</td><td class="mono num-col">08:00 – 16:00</td></tr>
+            <tr><td>Turni i zyrës</td><td>E mërkurë, e enjte, e premte</td><td class="mono num-col">09:00 – 17:00</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Të dyja rrinë aktive në të njëjtën kohë. Sistemi e di vetë se e hëna i
+        takon të parit.
+      </p>
+      <p>
+        Nëse provoni të shtoni dy orare që mbulojnë <strong>të njëjtën
+        ditë</strong>, sistemi e refuzon. Kjo është me qëllim: askush nuk do të
+        mund të thoshte se cili orar vlen atë ditë.
+      </p>
+      <p>
+        Për të ndryshuar ose hequr një caktim, përdorni <strong>Ndrysho</strong>
+        ose <strong>Fshij</strong> në rreshtin përkatës.
+      </p>
+    </section>
+
+    <section id="s8">
+      <h2><span class="num">08</span> Pajisjet (aparati i shenjimit)</h2>
+      <p><strong>Pajisjet</strong> → hapni një pajisje. Aty keni dy butona:</p>
+      <ul>
+        <li>
+          <strong>Testo Lidhjen</strong> — kontrollon nëse aparati përgjigjet.
+          Në të njëjtën kohë e lexon edhe <strong>orën e aparatit</strong> dhe
+          ju thotë nëse është gabim.
+        </li>
+        <li>
+          <strong>Sinkronizo Tani</strong> — merr menjëherë shenjimet e reja,
+          pa pritur ciklin automatik.
+        </li>
+      </ul>
+      <p>Në të njëjtën faqe shihni:</p>
+      <ul>
+        <li><strong>Sinkronizimi i fundit</strong> — kur janë marrë shenjimet e fundit.</li>
+        <li>
+          <strong>Ora e Pajisjes</strong> — nëse shkruan <em>E sinkronizuar me
+          serverin</em>, gjithçka është në rregull. Nëse shkruan që është gabim
+          me X minuta, rregullojeni orën e aparatit dhe pastaj shtypni përsëri
+          <strong>Testo Lidhjen</strong>.
+        </li>
+      </ul>
+      <p>
+        Normalisht sistemi i merr shenjimet vetë çdo pak minuta. Këta butona
+        janë për kur jeni duke instaluar ose duke kontrolluar diçka.
+      </p>
+    </section>
+
+    <section id="s9">
+      <h2><span class="num">09</span> Prezenca ditore</h2>
+      <p>
+        <strong>Prezenca → Statusi Ditor.</strong> Kjo është tabela kryesore e
+        kontrollit: një rresht për çdo punonjës për çdo ditë.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Statusi</th><th>Domethënia</th></tr></thead>
+          <tbody>
+            <tr class="sev-info"><td>Prezent</td><td>Ka punuar normalisht</td></tr>
+            <tr class="sev-watch"><td>Me vonesë</td><td>Ka ardhur pas tolerancës</td></tr>
+            <tr class="sev-urgent"><td>Mungesë</td><td>Ishte i planifikuar, nuk ka shenjuar</td></tr>
+            <tr class="sev-info"><td>Me leje</td><td>Ka leje të regjistruar atë ditë</td></tr>
+            <tr class="sev-info"><td>Festë</td><td>Festë zyrtare</td></tr>
+            <tr class="sev-info"><td>Pa orar</td><td>Nuk ishte i planifikuar të punojë</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Kolonat tregojnë orarin e planifikuar, hyrjen dhe daljen reale,
+        vonesën, daljen e parakohshme, orët shtesë dhe minutat e pushimit.
+      </p>
+      <h3>Arsyetimi i mungesës</h3>
+      <p>
+        Te kolona e fundit mund ta shënoni një mungesë si
+        <strong>E arsyeshme</strong>. Mungesa e arsyeshme nuk zbritet nga paga.
+      </p>
+      <h3>Aprovimi i orëve shtesë</h3>
+      <p>
+        Nëse te rregullat keni kërkuar aprovim, orët shtesë shfaqen si
+        <em>Në pritje aprovimi</em>. Shtypni <strong>Aprovo</strong> për t'i
+        paguar. Nëse nuk aprovohen, minutat mbesin të regjistruara por nuk
+        paguhen.
+      </p>
+      <div class="note">
+        <span class="tag">Mbrojtje</span>
+        <p>
+          Nëse aprovoni një ditë dhe më vonë vjen edhe një shenjim që e
+          ndryshon numrin e minutave, aprovimi anulohet vetë. Kështu nuk
+          paguhet kurrë një shifër që askush nuk e ka parë.
+        </p>
+      </div>
+      <h3>Rillogaritja</h3>
+      <p>
+        Butoni <strong>Rillogarit</strong> e detyron sistemin t'i llogarisë
+        sërish ditët e zgjedhura. Përdoreni pasi të keni ndryshuar një orar, të
+        keni shtuar një festë, ose të keni rregulluar orën e aparatit.
+      </p>
+    </section>
+
+    <section id="s10">
+      <h2><span class="num">10</span> Shenjimet</h2>
+      <p>
+        <strong>Prezenca → Shenjimet.</strong> Këtu janë shenjimet ashtu siç
+        kanë ardhur nga aparati, pa përpunim. Përdoreni kur dikush thotë
+        <em>"unë kam shenjuar"</em> dhe doni ta shihni të vërtetën.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Lloji</th><th>Kur ndodh</th></tr></thead>
+          <tbody>
+            <tr><td>Hyrje</td><td>Fillimi i punës</td></tr>
+            <tr><td>Dalje</td><td>Mbarimi i punës</td></tr>
+            <tr><td>Dalje pushimi</td><td>Del për pushim</td></tr>
+            <tr><td>Hyrje pushimi</td><td>Kthehet nga pushimi</td></tr>
+            <tr><td>Fillim orësh shtesë</td><td>Fillon orët shtesë (butoni në aparat)</td></tr>
+            <tr><td>Mbarim orësh shtesë</td><td>Mbaron orët shtesë</td></tr>
+            <tr><td>E paklasifikuar</td><td>Sistemi s'e ka lidhur dot me asnjë punonjës</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Nëse një shenjim është <strong>i paklasifikuar</strong>, numri i
+        përdorur te aparati nuk i takon askujt në sistem. Zgjidheni duke ia
+        caktuar punonjësit të duhur, pastaj shtoni regjistrimin te pajisja që
+        të mos përsëritet.
+      </p>
+    </section>
+
+    <section id="s11">
+      <h2><span class="num">11</span> Lejet</h2>
+      <p>
+        <strong>Lejet → Leje e Re.</strong> Zgjidhni punonjësin, llojin e lejes
+        dhe datat. Llojet vijnë të gatshme (pushim vjetor, leje mjekësore,
+        çështje private, punë zyrtare) dhe mund të shtoni të tjera te
+        Konfigurimi.
+      </p>
+      <p>
+        <strong>Lejet nuk kanë proces aprovimi.</strong> Kur shtoni një leje,
+        sistemi thjesht e di se ai person nuk pritet të shenjojë ato ditë. Nuk
+        shënohet mungesë dhe nuk bëhet zbritje.
+      </p>
+      <p>
+        Te llojet e lejeve përcaktohet nëse leja është <strong>e paguar</strong>
+        apo jo. Ditët e papaguara dalin veçmas te fleta e pagës.
+      </p>
+    </section>
+
+    <section id="s12">
+      <h2><span class="num">12</span> Festat zyrtare</h2>
+      <p><strong>Konfigurimi → Festat Zyrtare.</strong></p>
+      <div class="note warn">
+        <span class="tag">Duhet plotësuar</span>
+        <p>
+          Nëse kjo listë mbetet bosh, çdo festë zyrtare llogaritet si
+          <strong>mungesë e paarsyeshme</strong> dhe u zbritet punonjësve nga
+          paga.
+        </p>
+      </div>
+      <p>Për çdo festë shkruani:</p>
+      <ul>
+        <li><strong>Datën</strong>.</li>
+        <li><strong>Emrin</strong> në shqip dhe anglisht.</li>
+        <li><strong>Lokacionin</strong> — lëreni bosh që të vlejë për të gjitha lokacionet.</li>
+        <li>
+          <strong>Përsëritet çdo vit</strong> — ndizeni për festat me datë fikse
+          (p.sh. 1 Janari). Për festat që ndryshojnë datë çdo vit (Bajrami,
+          Pashkët), lëreni të fikur dhe shtoni datën e saktë për çdo vit.
+        </li>
+      </ul>
+      <p>Çka ndodh në një ditë feste:</p>
+      <ul>
+        <li>Kush nuk punon: statusi <em>Festë</em>, pa mungesë, pa zbritje.</li>
+        <li>Kush punon: orët paguhen me tarifën e festës, nëse ajo është caktuar te rregullat e orëve shtesë.</li>
+        <li>Nëse dikush ishte me leje atë ditë, festa nuk ia han ditën e lejes.</li>
+      </ul>
+      <div class="note">
+        <span class="tag">Përgjegjësia</span>
+        <p>
+          Datat e festave i vendosni ju sipas ligjit dhe vendimit të firmës.
+          Sistemi nuk vjen me lista të gatshme, sepse ato ndryshojnë dhe
+          përgjegjësia është e juaja.
+        </p>
+      </div>
+    </section>
+
+    <section id="s13">
+      <h2><span class="num">13</span> Rregullat e pagës</h2>
+      <p>
+        Te <strong>Konfigurimi</strong> përcaktohet politika. Çdo rregull ka
+        datë prej së cilës vlen, kështu që një ndryshim sot nuk i prek muajt e
+        kaluar.
+      </p>
+
+      <h3>Penalitetet (vonesat)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mënyra</th><th>Si llogaritet</th><th>Shembull</th></tr></thead>
+          <tbody>
+            <tr><td>Fiks për minutë</td><td>Tarifa × minutat e vonesës</td><td class="num-col">0.10 € × 20 min = <strong>2.00 €</strong></td></tr>
+            <tr><td>Tolerancë me shumë fikse</td><td>Deri në X minuta falet; mbi X zbritet një shumë fikse</td><td class="num-col">deri 10 min falet; 11 min ose 40 min = <strong>5.00 €</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Mund të vendosni edhe <strong>zbritje maksimale ditore</strong>, që
+        askush të mos humbasë më shumë se aq në një ditë, dhe një tarifë të
+        veçantë për <strong>dalje të parakohshme</strong>.
+      </p>
+
+      <h3>Orët shtesë</h3>
+      <ul>
+        <li><strong>Tarifa për orë</strong> — sa paguhet ora shtesë.</li>
+        <li>
+          <strong>Pragu ditor</strong> — sa minuta mbi orar nuk numërohen. Me
+          prag <span class="mono">30</span>, dikush që rri 20 minuta më gjatë
+          nuk fiton asgjë; kush rri 50 minuta fiton 20.
+        </li>
+        <li><strong>Tarifa e fundjavës</strong> dhe <strong>tarifa e festave</strong> — nëse janë të ndryshme.</li>
+        <li><strong>Kërkon aprovim</strong> — nëse ndizet, orët shtesë nuk paguhen pa aprovimin tuaj.</li>
+        <li><strong>Kufiri mujor</strong> — maksimumi i orëve shtesë që paguhen në muaj.</li>
+      </ul>
+      <div class="note warn">
+        <span class="tag">E rëndësishme</span>
+        <p>
+          Pragu ditor vlen vetëm kur dikush thjesht rri më gjatë. Nëse
+          punonjësi shtyp <strong>Fillim orësh shtesë</strong> në aparat, ato
+          minuta paguhen të plota, pa prag. Arsyeja: pragu është aty për t'i
+          injoruar 10 minutat që dikush vonohet duke dalë, jo për t'i shkurtuar
+          orët shtesë të vendosura me qëllim.
+        </p>
+      </div>
+
+      <h3>Rregulli i mungesave</h3>
+      <p>Sa zbritet për një ditë mungese të paarsyeshme:</p>
+      <ul>
+        <li><strong>Shumë fikse</strong> — p.sh. <span class="mono">20.00 €</span> për ditë.</li>
+        <li>
+          <strong>Pjesë e pagës ditore</strong> — p.sh.
+          <span class="mono">1.0</span> do të thotë një ditë e plotë pune (paga
+          bazë pjesëtuar me ditët e muajit).
+        </li>
+      </ul>
+    </section>
+
+    <section id="s14">
+      <h2><span class="num">14</span> Paga mujore</h2>
+      <p>
+        <strong>Paga → Llogaritje e Re.</strong> Zgjidhni muajin dhe lokacionin.
+        Sistemi krijon nga një rresht për çdo punonjës:
+      </p>
+      <div class="formula">
+        Paga bazë<br>
+        <span class="op">−</span> zbritjet për vonesa dhe dalje të parakohshme<br>
+        <span class="op">−</span> zbritjet për mungesa<br>
+        <span class="op">+</span> shtesa për orët shtesë<br>
+        <span class="op">±</span> korrigjimet manuale<br>
+        <span class="total"><span class="op">=</span> Paga neto</span>
+      </div>
+      <h3>Përpara se ta mbyllni llogaritjen</h3>
+      <ol class="steps">
+        <li>Hapni <strong>Njoftimet</strong> dhe rregulloni çka mundeni: dalje që mungojnë, shenjime të pazgjidhura, orë shtesë në pritje.</li>
+        <li>Kontrolloni te Prezenca Ditore mungesat e muajit dhe arsyetoni ato që janë të arsyeshme.</li>
+        <li>Nëse keni ndryshuar diçka, shtypni <strong>Rillogarit</strong> për ato data.</li>
+      </ol>
+      <p>
+        <strong>Korrigjimet manuale:</strong> te çdo rresht mund të shtoni një
+        <em>bonus</em> ose një <em>zbritje</em> me arsye të shkruar. Kjo është
+        për gjërat që sistemi nuk i di.
+      </p>
+      <p>
+        <strong>Mbyllja (finalizimi):</strong> kur shtypni
+        <strong>Finalizo</strong>, llogaritja bllokohet dhe nuk ndryshohet më.
+        Vetëm pas kësaj mund të shkarkoni fletët e pagës. Nëse gjeni gabim pas
+        mbylljes, llogaritja e mbyllur mbetet si dëshmi dhe korrigjimi bëhet në
+        muajin pasues.
+      </p>
+      <p>
+        <strong>Shkarkimi:</strong> butoni i eksportit ju jep dosje Excel, ose
+        të gjithë listën, ose fletë page për një punonjës.
+      </p>
+    </section>
+
+    <section id="s15">
+      <h2><span class="num">15</span> Përdoruesit e sistemit</h2>
+      <p>
+        <strong>Cilësimet → Llogaritë e Përdoruesve</strong> (vetëm
+        administratori). Kur krijoni një përdorues, i jepni një fjalëkalim
+        fillestar; sistemi e detyron atë person ta ndërrojë herën e parë.
+      </p>
+      <p>
+        Për një <strong>menaxher</strong> duhet caktuar
+        <strong>lokacioni</strong>. Menaxheri pa lokacion nuk sheh asgjë, dhe
+        kjo është me qëllim, që askush të mos shohë të dhëna pa i takuar.
+        Sistemi ju njofton nëse harroni.
+      </p>
+    </section>
+
+    <section id="s16">
+      <h2><span class="num">16</span> Çka të bëni kur…</h2>
+
+      <h3>…dikush ka harruar të shenjojë daljen</h3>
+      <p>
+        Njoftimi <em>"Nuk ka dalje të regjistruar"</em> e tregon. Sistemi nuk ia
+        zbret pagën për këtë. Pyeteni personin dhe, nëse duhet, shtoni një
+        korrigjim manual te paga e muajit.
+      </p>
+
+      <h3>…dikush del me vonesë por nuk ka qenë</h3>
+      <p>
+        Kontrolloni te <strong>Pajisjet</strong> orën e aparatit. Nëse ora është
+        gabim, rregullojeni dhe pastaj shtypni <strong>Rillogarit</strong> për
+        ato ditë. Kontrolloni edhe orarin që i është caktuar, mos i është
+        caktuar turni i gabuar.
+      </p>
+
+      <h3>…dikush ka ndërruar turn me një kolegë</h3>
+      <p>
+        Shtoni një caktim turni për atë periudhë, ose arsyetoni mungesën dhe
+        shtoni korrigjim manual te paga.
+      </p>
+
+      <h3>…aparati është fikur një ditë</h3>
+      <p>
+        Shenjimet rrinë të ruajtura në vetë aparatin. Kur ndizet përsëri,
+        sistemi i merr vetë. Nëse kanë kaluar shumë ditë, shtypni
+        <strong>Sinkronizo Tani</strong>.
+      </p>
+
+      <h3>…ka ikur rryma</h3>
+      <p>
+        Kur kthehet rryma, kompjuteri dhe programi ndizen vetë. Aparati i ruan
+        shenjimet ndërkohë. Kontrolloni te Pajisjet që sinkronizimi i fundit të
+        jetë i freskët.
+      </p>
+
+      <h3>…një punonjës i ri fillon punën</h3>
+      <ol class="steps">
+        <li>Shtojeni te <strong>Punonjësit</strong>.</li>
+        <li>Regjistrojeni në aparat dhe shënoni ID-në e tij te <strong>Regjistrimet në Pajisje</strong>.</li>
+        <li>Caktojini turnin.</li>
+      </ol>
+    </section>
+
+    <section id="s17">
+      <h2><span class="num">17</span> Kopjet rezervë</h2>
+      <p>
+        Sistemi bën vetë një kopje të bazës së të dhënave çdo natë dhe e ruan në
+        kompjuter, në dosjen <code>backups</code>.
+      </p>
+      <p>Dy gjëra janë përgjegjësi e njeriut:</p>
+      <ol class="steps">
+        <li>
+          <strong>Kopjoni atë dosje diku tjetër</strong> — në një disk të
+          jashtëm, në një dosje rrjeti, ose në internet. Nëse prishet disku i
+          kompjuterit, kopjet që janë në të njëjtin disk humbin bashkë me të.
+        </li>
+        <li>
+          <strong>Shikoni njoftimet.</strong> Nëse del njoftimi që kopja rezervë
+          dështoi ose mungon, njoftoni menjëherë personin që e mirëmban
+          sistemin. Mos e lini për më vonë.
+        </li>
+      </ol>
+    </section>
+
+    <section id="s18">
+      <h2><span class="num">18</span> Fjalorth</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Fjala</th><th>Shpjegimi</th></tr></thead>
+          <tbody>
+            <tr><td>Shenjim</td><td>Një prekje e gishtit ose kartelës te aparati</td></tr>
+            <tr><td>Turni / orari</td><td>Kur pritet të punojë dikush</td></tr>
+            <tr><td>Toleranca</td><td>Minutat e vonesës që falen</td></tr>
+            <tr><td>Bllok pune</td><td>Një pjesë e ditës së punës; një ditë mund të ketë dy</td></tr>
+            <tr><td>Orë shtesë</td><td>Koha e punuar mbi orarin</td></tr>
+            <tr><td>Pragu</td><td>Minutat mbi orar që nuk numërohen si orë shtesë</td></tr>
+            <tr><td>Mungesë e arsyeshme</td><td>Mungesë që nuk zbritet nga paga</td></tr>
+            <tr><td>Rillogaritje</td><td>Detyrimi i sistemit të llogarisë sërish ditët e zgjedhura</td></tr>
+            <tr><td>Finalizim</td><td>Mbyllja përfundimtare e pagës së muajit</td></tr>
+            <tr><td>Sinkronizim</td><td>Marrja e shenjimeve nga aparati</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer>
+  <p>
+    Nëse diçka nuk përputhet me atë që shkruan ky manual, mos e ndryshoni pagën
+    me dorë pa e kuptuar shkakun. Njoftoni personin që e mirëmban sistemin.
+  </p>
+</footer>
+
+<script>
+  (function () {
+    var sections = Array.prototype.slice.call(document.querySelectorAll("main section"));
+    var titles = sections.map(function (s) {
+      var h = s.querySelector("h2");
+      var num = h.querySelector(".num").textContent.trim();
+      var text = h.textContent.replace(num, "").trim();
+      return { id: s.id, num: num, text: text };
+    });
+
+    function fill(list, withCurrent) {
+      titles.forEach(function (t) {
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        a.href = "#" + t.id;
+        a.dataset.target = t.id;
+        var n = document.createElement("span");
+        n.className = "n";
+        n.textContent = t.num;
+        var label = document.createElement("span");
+        label.textContent = t.text;
+        a.appendChild(n);
+        a.appendChild(label);
+        li.appendChild(a);
+        list.appendChild(li);
+      });
+    }
+
+    var desktop = document.getElementById("tocList");
+    var mobile = document.getElementById("tocListMobile");
+    if (desktop) fill(desktop, true);
+    if (mobile) fill(mobile, false);
+
+    // Highlight the section being read — a long manual is navigated by
+    // number, so the contents has to say where you are.
+    var links = desktop ? Array.prototype.slice.call(desktop.querySelectorAll("a")) : [];
+    if (links.length && "IntersectionObserver" in window) {
+      var visible = {};
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          visible[e.target.id] = e.isIntersecting;
+        });
+        var currentId = null;
+        for (var i = 0; i < titles.length; i++) {
+          if (visible[titles[i].id]) { currentId = titles[i].id; break; }
+        }
+        links.forEach(function (a) {
+          a.classList.toggle("current", a.dataset.target === currentId);
+        });
+      }, { rootMargin: "-10% 0px -70% 0px" });
+      sections.forEach(function (s) { observer.observe(s); });
+    }
+  })();
+</script>
+</body>
+</html>

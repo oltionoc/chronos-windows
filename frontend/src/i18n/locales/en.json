@@ -81,7 +81,8 @@
     "settings": "Settings",
     "settingsUsers": "User Accounts",
     "settingsProfile": "My Profile",
-    "configHolidays": "Holidays"
+    "configHolidays": "Holidays",
+    "manual": "Manual"
   },
   "status": {
     "attendance": {
