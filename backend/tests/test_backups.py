@@ -37,8 +37,13 @@ def _backup_exec(command: str, stdin: str | None = None) -> subprocess.Completed
 
 
 def _alerts(admin_client, *types):
-    rows = admin_client.get("/reports/alerts", params={"days": 7}).json()["alerts"]
-    return [a for a in rows if a["type"] in types]
+    # Assert the response before reading it: auth.py rate-limits per account,
+    # so a burst of bad logins from another test module can briefly turn this
+    # into an error body. Without this check that surfaces as a bare KeyError
+    # on "alerts" and looks like a backup bug.
+    r = admin_client.get("/reports/alerts", params={"days": 7})
+    assert r.status_code == 200, f"alerts request failed: {r.status_code} {r.text[:200]}"
+    return [a for a in r.json()["alerts"] if a["type"] in types]
 
 
 @pytest.fixture
