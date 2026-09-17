@@ -1,0 +1,10 @@
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+tests
+
+# Not needed inside the image, and no reason to hand them to anyone who
+# opens it up.
+Dockerfile
+requirements-dev.txt

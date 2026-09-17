@@ -1,0 +1,44 @@
+fastapi==0.115.6
+uvicorn[standard]==0.30.6
+sqlalchemy==2.0.35
+alembic==1.13.2
+psycopg2-binary==2.9.9
+pydantic==2.9.2
+pydantic-settings==2.5.2
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+# SECURITY (2026-09-16 pass): bumped from 2.9.0. This is the session-token
+# library, so it gets kept current on principle even where reachability is
+# limited. 2.9.0 is affected by PYSEC-2026-120 (`crit` header not validated,
+# RFC 7515 4.1.11 MUST) and PYSEC-2026-178 (oversized base64 payload segment
+# decoded before the signature is checked — a pre-auth CPU/memory amplifier,
+# bounded here only by the HTTP header size limit on the session cookie).
+# The PyJWKClient advisories (PYSEC-2026-175/176/177/179) are not reachable:
+# this app uses a static HS256 secret and never fetches a JWKS.
+PyJWT==2.13.0
+# SECURITY (2026-08-23 pass): bumped from 0.0.9 — that version is affected by
+# CVE-2024-53981 (form-data preamble/epilogue DoS, fixed 0.0.18) and
+# CVE-2026-42561 (unbounded multipart part-header DoS, fixed 0.0.27). This
+# dependency became actually reachable in that pass: the new CSV bulk-import
+# endpoints (`employees.py`/`leave.py`) are the first code in this project to
+# declare `UploadFile = File(...)`, which pulls python-multipart into the
+# live request path. See SECURITY_REPORT.md.
+# SECURITY (2026-09-16 pass): bumped again 0.0.20 -> 0.0.31 for
+# PYSEC-2026-3038/3039 (multipart preamble + part-header parsing DoS),
+# PYSEC-2026-3040 (negative Content-Length turned the bounded chunked read
+# into read-until-EOF, loading the whole body into memory in one go) and
+# PYSEC-2026-3036/3037 (`;` separator parser differential). All reach the
+# CSV bulk-import endpoints, which are the only multipart surface here.
+python-multipart==0.0.31
+# SECURITY (2026-08-23 pass): bumped from 0.115.0 — pulls in starlette>=0.40.0,
+# which fixes CVE-2024-47874 (starlette's multipart form-data parser could be
+# driven into unbounded memory/temp-file consumption). Previously not
+# reachable in this codebase per SECURITY_REPORT.md finding 19 ("no endpoint
+# declares Form/File/UploadFile"); now reachable via the bulk-import
+# endpoints, so the same fix that gates python-multipart above also requires
+# this bump. No breaking API changes for this project between 0.115.0 and
+# 0.115.6 (verified: no deprecations touch anything used here).
+httpx==0.27.2
+pyzk==0.9
+openpyxl==3.1.5
+

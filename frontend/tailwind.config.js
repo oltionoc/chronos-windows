@@ -1,0 +1,105 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        // Graphite — anchored to the chronos logo mark's own near-black
+        // (#232326), landing exactly on primary-700 (hover/pressed state).
+        primary: {
+          50: '#F7F7F8',
+          100: '#EEEEF0',
+          200: '#D9D9DE',
+          300: '#B8B8C0',
+          400: '#8F8F99',
+          500: '#68686F',
+          600: '#4A4A50',
+          700: '#232326',
+          800: '#19191B',
+          900: '#101012',
+        },
+        neutral: {
+          50: '#F8FAFC',
+          100: '#F1F5F9',
+          200: '#E2E8F0',
+          300: '#CBD5E1',
+          400: '#94A3B8',
+          500: '#64748B',
+          600: '#475569',
+          700: '#334155',
+          800: '#1E293B',
+          900: '#0F172A',
+        },
+        success: {
+          50: '#F0FDF4',
+          100: '#DCFCE7',
+          500: '#22C55E',
+          600: '#16A34A',
+          700: '#15803D',
+        },
+        warning: {
+          50: '#FFFBEB',
+          100: '#FEF3C7',
+          500: '#F59E0B',
+          600: '#D97706',
+          700: '#B45309',
+        },
+        danger: {
+          50: '#FEF2F2',
+          100: '#FEE2E2',
+          500: '#EF4444',
+          600: '#DC2626',
+          700: '#B91C1C',
+          800: '#991B1B',
+        },
+        violet: {
+          50: '#F5F1F4',
+          100: '#E9E0E6',
+          500: '#8C7086',
+          600: '#715A6C',
+          700: '#5A4655',
+        },
+        avatar: {
+          sky: '#0EA5E9',
+          pink: '#EC4899',
+        },
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['JetBrains Mono', 'SF Mono', 'ui-monospace', 'Menlo', 'Consolas', 'monospace'],
+      },
+      fontSize: {
+        'page-title': ['24px', { lineHeight: '28px', letterSpacing: '-0.02em', fontWeight: '600' }],
+        'section-title': ['18px', { lineHeight: '24px', letterSpacing: '-0.01em', fontWeight: '600' }],
+        'group-label': ['14px', { lineHeight: '20px', fontWeight: '600', letterSpacing: '0.04em' }],
+        body: ['14px', { lineHeight: '20px', fontWeight: '400' }],
+        'body-muted': ['14px', { lineHeight: '20px', fontWeight: '400' }],
+        caption: ['12px', { lineHeight: '16px', fontWeight: '400' }],
+        label: ['14px', { lineHeight: '20px', fontWeight: '500' }],
+        error: ['12px', { lineHeight: '16px', fontWeight: '500' }],
+        kpi: ['30px', { lineHeight: '32px', letterSpacing: '-0.02em', fontWeight: '700' }],
+      },
+      boxShadow: {
+        sm: '0 1px 2px 0 rgba(15,23,42,0.06)',
+        md: '0 4px 6px -1px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.06)',
+        lg: '0 10px 15px -3px rgba(15,23,42,0.10), 0 4px 6px -4px rgba(15,23,42,0.08)',
+      },
+      borderRadius: {
+        sm: '4px',
+        md: '6px',
+        lg: '8px',
+      },
+      zIndex: {
+        content: '0',
+        topbar: '20',
+        sidebar: '20',
+        popover: '30',
+        drawer: '40',
+        'modal-backdrop': '50',
+        modal: '51',
+        toast: '60',
+      },
+    },
+  },
+  plugins: [],
+}

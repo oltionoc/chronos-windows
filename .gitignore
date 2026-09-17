@@ -1,0 +1,15 @@
+# Secrets — never commit; each client gets its own generated set.
+.env
+client/.env
+
+# Database dumps produced by the backup service.
+backups/
+client/backups/
+
+# Build output and local tooling
+node_modules/
+dist/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/

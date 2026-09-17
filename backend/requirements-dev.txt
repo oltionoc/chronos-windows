@@ -1,0 +1,6 @@
+# Dev/test-only dependencies — not part of the runtime `api` image
+# (see backend/Dockerfile, which installs only requirements.txt).
+# Used by tests/ (backend/tests/test_qa_smoke.py) — see tests/conftest.py
+# for how to run.
+-r requirements.txt
+pytest==8.3.3

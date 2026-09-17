@@ -1,0 +1,113 @@
+# chronos — client deployment.
+#
+# This is the ONLY file (plus .env) that goes on the client's machine. It
+# pulls ready-built images from the private registry instead of building from
+# source, so no application source code is copied to their PC.
+#
+#   docker compose pull
+#   docker compose up -d
+#
+# Images are private. Log in once to pull, then log out again so the
+# credentials do not stay on their machine:
+#
+#   docker login -u <user>            # pull happens after this
+#   docker compose pull && docker compose up -d
+#   docker logout
+#
+# REGISTRY / TAG come from .env so a new version is a one-line change plus
+# `docker compose pull && docker compose up -d`.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-chronos}
+      POSTGRES_USER: ${POSTGRES_USER:-chronos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-chronos}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Nightly database backup into ./backups on this machine. See ops/backup.sh.
+  # The app raises an alert if this stops producing files.
+  backup:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: ${POSTGRES_DB:-chronos}
+      POSTGRES_USER: ${POSTGRES_USER:-chronos}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      BACKUP_HOUR: ${BACKUP_HOUR:-2}
+      BACKUP_MINUTE: ${BACKUP_MINUTE:-30}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+      TZ: ${BACKUP_TIMEZONE:-Europe/Tirane}
+    volumes:
+      - ./backups:/backups
+      - ./ops/backup.sh:/usr/local/bin/backup.sh:ro
+    entrypoint: ["/bin/sh", "/usr/local/bin/backup.sh"]
+
+  api:
+    image: ${REGISTRY:?REGISTRY must be set}/chronos-api:${TAG:-beta}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-chronos}
+      POSTGRES_USER: ${POSTGRES_USER:-chronos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?INTERNAL_API_KEY must be set}
+      WORKER_INTERNAL_URL: http://worker:8100
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    volumes:
+      # Read-only, only so the app can tell you when backups stop working.
+      - ./backups:/backups:ro
+    # SECURITY: no host port. Everything reaches the API through the web
+    # container on :8080, which also blocks the internal ingestion endpoints
+    # from the LAN. Publishing this port would bypass that.
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  worker:
+    image: ${REGISTRY:?REGISTRY must be set}/chronos-worker:${TAG:-beta}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      API_BASE_URL: http://api:8000/api/v1
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?INTERNAL_API_KEY must be set}
+      SYNC_INTERVAL_SECONDS: ${SYNC_INTERVAL_SECONDS:-300}
+      NIGHTLY_HOUR: ${NIGHTLY_HOUR:-2}
+      NIGHTLY_MINUTE: ${NIGHTLY_MINUTE:-0}
+      DEVICE_TIMEZONE: ${DEVICE_TIMEZONE:-Europe/Tirane}
+
+  frontend:
+    image: ${REGISTRY:?REGISTRY must be set}/chronos-frontend:${TAG:-beta}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-8080}:80"
+
+volumes:
+  db_data:

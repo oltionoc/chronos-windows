@@ -1,0 +1,62 @@
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-app text-body font-sans antialiased;
+  font-size: 14px;
+  color: #1E293B;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* focus-visible ring per DESIGN_SPEC 1.5 */
+:focus-visible {
+  outline: 2px solid #4A4A50;
+  outline-offset: 2px;
+}
+
+.bg-app {
+  background-color: #F8FAFC;
+}
+.bg-surface {
+  background-color: #FFFFFF;
+}
+.bg-sidebar {
+  background-color: #232326;
+}
+.border-default {
+  border-color: #E2E8F0;
+}
+.border-input {
+  border-color: #CBD5E1;
+}
+.text-title {
+  color: #0F172A;
+}
+.text-body-color {
+  color: #1E293B;
+}
+.text-muted {
+  color: #64748B;
+}
+.text-disabled {
+  color: #94A3B8;
+}

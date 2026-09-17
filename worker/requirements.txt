@@ -1,0 +1,11 @@
+# SECURITY (2026-09-16 pass): aligned with backend/requirements.txt's
+# 0.115.6, which pins starlette>=0.40.0 (CVE-2024-47874). `worker` has no
+# multipart/form endpoint so it was not reachable there either, but the two
+# services should not drift on a shared transitive dependency.
+fastapi==0.115.6
+uvicorn[standard]==0.30.6
+httpx==0.27.2
+pydantic-settings==2.5.2
+APScheduler==3.10.4
+pyzk==0.9
+tzdata==2024.1

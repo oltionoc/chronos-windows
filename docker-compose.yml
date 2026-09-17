@@ -1,0 +1,112 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-checkin}
+      POSTGRES_USER: ${POSTGRES_USER:-checkin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-checkin}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-checkin}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Nightly pg_dump into ./backups on the HOST (not into the Postgres
+  # volume — a backup living inside the thing it protects is not a backup).
+  # Verifies each dump, prunes old ones, and writes ./backups/LAST_BACKUP,
+  # which `api` reads to raise the `backup_stale` alert. See ops/backup.sh
+  # and ops/restore.sh.
+  backup:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: ${POSTGRES_DB:-checkin}
+      POSTGRES_USER: ${POSTGRES_USER:-checkin}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-checkin}
+      BACKUP_HOUR: ${BACKUP_HOUR:-2}
+      BACKUP_MINUTE: ${BACKUP_MINUTE:-30}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+      TZ: ${BACKUP_TIMEZONE:-Europe/Tirane}
+    volumes:
+      - ./backups:/backups
+      - ./ops/backup.sh:/usr/local/bin/backup.sh:ro
+    entrypoint: ["/bin/sh", "/usr/local/bin/backup.sh"]
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-checkin}
+      POSTGRES_USER: ${POSTGRES_USER:-checkin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-checkin}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?INTERNAL_API_KEY must be set}
+      WORKER_INTERNAL_URL: http://worker:8100
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    volumes:
+      # Read-only, and only so the `backup_stale` alert can see whether the
+      # backup service is actually producing files. api never writes here.
+      - ./backups:/backups:ro
+    ports:
+      # SECURITY: bound to loopback. LAN clients reach the API through the
+      # `frontend` nginx proxy on :8080, which is also where the
+      # `/api/v1/internal/` block lives (SECURITY_REPORT.md Revision 1
+      # finding 2). Published on 0.0.0.0 this port bypassed that proxy
+      # entirely, so the shared secret was the only thing standing between
+      # the LAN and the ingestion API. Local tooling still reaches it at
+      # http://127.0.0.1:8000. See SECURITY_REPORT.md Revision 3.
+      - "127.0.0.1:8000:8000"
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  worker:
+    build: ./worker
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      API_BASE_URL: http://api:8000/api/v1
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?INTERNAL_API_KEY must be set}
+      SYNC_INTERVAL_SECONDS: ${SYNC_INTERVAL_SECONDS:-300}
+      NIGHTLY_HOUR: ${NIGHTLY_HOUR:-2}
+      NIGHTLY_MINUTE: ${NIGHTLY_MINUTE:-0}
+      DEVICE_TIMEZONE: ${DEVICE_TIMEZONE:-Europe/Tirane}
+    # SECURITY: no host port published. worker's only HTTP surface
+    # (POST /sync/{device_id}, shared-secret protected) is called exclusively
+    # by the `api` service over the internal Docker network (see
+    # backend/app/routers/devices.py trigger_sync) — it has no legitimate
+    # reason to be reachable from the LAN/host directly. Previously published
+    # as "8100:8100", which exposed it beyond what BLUEPRINT.md Section 2.2's
+    # "worker never touches Postgres directly, api-mediated only" design
+    # intends. See SECURITY_REPORT.md.
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+
+volumes:
+  db_data:
