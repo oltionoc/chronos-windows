@@ -158,6 +158,69 @@ Order matters — each step depends on the one before.
 
 ---
 
+## 3b. When the device refuses: "Device rejected the request: HTTP 401"
+
+This is not a network problem. The terminal answered and rejected the
+credentials. The important part first:
+
+> **Stop pressing Test Connection.** Hikvision terminals lock the admin
+> account after about five failed attempts, for about thirty minutes, and
+> **every further attempt restarts that timer**. Retrying is what turns a
+> one-minute fix into a half-hour wait. This has already happened once during
+> testing.
+
+### 1. Check what chronos has stored, before touching the device
+
+- The **username** must be the account whose password you set at activation,
+  normally `admin` — not your own name.
+- chronos never displays a stored device password back to you. If the device
+  was added with that field empty, the request goes out with no secret and the
+  device answers 401. Re-enter it and save.
+- Changing a device's address, port or type also **requires re-entering the
+  password in the same save** (otherwise the stored secret would be sent to a
+  new target — see `_RETARGETING_FIELDS` in `backend/app/routers/devices.py`).
+  A save that was rejected for that reason leaves the row unchanged.
+
+### 2. Ask the device once what it objects to
+
+One request. Not a loop, not a script:
+
+```bash
+curl -s -i --digest -u 'admin:<password>' http://<device-ip>/ISAPI/System/deviceInfo
+```
+
+The body of the 401 names the cause:
+
+| In the response | Meaning | What to do |
+|---|---|---|
+| `badPassword` | Wrong password | Fix the stored credentials, then **one** attempt |
+| `userLocked`, or `lockStatus: lock` with `unlockTime: <seconds>` | Locked out by earlier attempts | Wait out `unlockTime` and touch nothing. `retryLoginTime` shows how many attempts remain after it unlocks |
+| `notActivated` / `<isActivated>false</isActivated>` | Factory-fresh or restored device | Activate it first; no login works until then |
+| HTTP 200 with device details | Credentials are fine | The problem is in the stored row, not the device |
+
+### 3. Activation, if that is what it says
+
+A new or restored device refuses everything until activated, and it has no web
+UI on the K1T series, so do it over ISAPI:
+
+```bash
+curl -s -X PUT --digest -u 'admin:<new-password>' \
+  -H 'Content-Type: application/xml' \
+  -d '<ActivateInfo><password><new-password></password></ActivateInfo>' \
+  http://<device-ip>/ISAPI/System/activate
+```
+
+`hasActivated` in the reply means it was already activated — then the issue is
+the password, not activation.
+
+### 4. Last resort
+
+A device-side restore to defaults clears the password **and** every enrolled
+fingerprint and face, so everyone has to be enrolled again and the device
+re-activated. Treat it as the end of the list, not the start.
+
+---
+
 ## 4. Ongoing
 
 - **Alerts page, daily.** Everything the system detects goes there: missing
