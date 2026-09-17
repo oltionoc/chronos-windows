@@ -134,7 +134,8 @@ export function SidebarContent({
             wider). On its own line it gets the full content width. */}
         {!collapsed && (
           <div className="flex flex-col items-center gap-0.5 px-3 pb-1.5 pt-0.5">
-            <span className="text-[10px] uppercase tracking-wide text-neutral-600">{t('common.poweredBy')}</span>
+            {/* Deliberately not translated: this is the Solis Labs attribution, part of the mark. */}
+          <span className="text-[10px] uppercase tracking-wide text-neutral-600">Powered by</span>
             <SolisLabsLogo width={148} variant="light" />
           </div>
         )}

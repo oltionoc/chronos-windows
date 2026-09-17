@@ -46,8 +46,7 @@
     "days": "days",
     "of": "of",
     "page": "Page",
-    "itemsSelected": "{{count}} selected",
-    "poweredBy": "Powered by"
+    "itemsSelected": "{{count}} selected"
   },
   "table": {
     "showing": "Showing {{from}}–{{to}} of {{total}}"

@@ -81,7 +81,8 @@ export function Login() {
           </Button>
         </form>
         <div className="mt-6 flex flex-col items-center gap-1.5">
-          <span className="text-[10px] uppercase tracking-wide text-neutral-400">{t('common.poweredBy')}</span>
+          {/* Deliberately not translated: this is the Solis Labs attribution, part of the mark. */}
+          <span className="text-[10px] uppercase tracking-wide text-neutral-400">Powered by</span>
           <SolisLabsLogo width={220} variant="dark" />
         </div>
       </div>

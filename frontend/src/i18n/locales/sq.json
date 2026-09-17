@@ -46,8 +46,7 @@
     "days": "ditë",
     "of": "nga",
     "page": "Faqja",
-    "itemsSelected": "{{count}} të zgjedhura",
-    "poweredBy": "Fuqizuar nga"
+    "itemsSelected": "{{count}} të zgjedhura"
   },
   "table": {
     "showing": "Duke shfaqur {{from}}–{{to}} nga {{total}}"

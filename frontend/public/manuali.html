@@ -220,25 +220,34 @@
   ul, ol { margin: 0 0 16px; padding-left: 22px; }
   li { margin-bottom: 7px; }
   li::marker { color: var(--muted); }
+  /* The number sits in the left margin and the step's own text keeps normal
+     inline flow. It used to be a grid on the <li>, which made every inline
+     child — each <strong>, each text run — its own grid cell, so a step with
+     bold words inside came out stacked and overlapping. */
   ol.steps { counter-reset: s; list-style: none; padding-left: 0; }
   ol.steps > li {
     counter-increment: s;
-    display: grid;
-    grid-template-columns: 26px 1fr;
-    gap: 12px;
+    position: relative;
+    display: block;
+    padding-left: 38px;
     margin-bottom: 12px;
   }
   ol.steps > li::before {
     content: counter(s);
+    position: absolute;
+    left: 0;
+    top: 3px;
+    width: 26px;
+    height: 22px;
     font-family: "IBM Plex Mono", monospace;
     font-size: 12px;
     font-weight: 500;
     color: var(--muted);
     border: 1px solid var(--rule);
     border-radius: 4px;
-    height: 22px;
-    display: grid;
-    place-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   code, .mono, td.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .92em; }
