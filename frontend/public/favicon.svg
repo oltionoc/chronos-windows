@@ -1,6 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <rect width="24" height="24" rx="6" fill="#232326"/>
-  <g transform="translate(4,4) scale(0.16)">
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M100 0 H0 V100 H100 V64 H50 V36 H100 Z M50 28 A22 22 0 1 1 49.99 28 Z" fill="#FFFFFF"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- The delivered chronos mark, full bleed. It used to be scaled to 67% and
+       inverted inside a second rounded square, which at 16px read as a dark
+       box with a white blob: the mark is itself the square, so nesting it in
+       another one destroys the shape. Flips to white on a dark tab bar. -->
+  <style>
+    path { fill: #232326; }
+    @media (prefers-color-scheme: dark) { path { fill: #FFFFFF; } }
+  </style>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M100 0 H0 V100 H100 V64 H50 V36 H100 Z M50 28 A22 22 0 1 1 49.99 28 Z"/>
 </svg>
