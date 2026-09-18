@@ -72,6 +72,17 @@ jobs:
           NUITKA_CACHE_DIR: ${{ runner.temp }}\nuitka-cache
         run: ./packaging/windows/build.ps1 -Version "${{ steps.version.outputs.value }}"
 
+      # Uploaded straight after building, before any test runs. The first run
+      # passed every test and still produced no installer, because the upload
+      # sat after a log step that failed. Whether the tests below pass is shown
+      # by the run's own status; the file should exist either way.
+      - name: Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: ChronosSetup-${{ steps.version.outputs.value }}
+          path: packaging/windows/Output/*.exe
+          if-no-files-found: error
+
       # ---------------------------------------------------------------------
       # Install it for real on this machine and check it works end to end.
       # ---------------------------------------------------------------------
@@ -151,18 +162,23 @@ jobs:
           if (-not (Test-Path "$env:ProgramData\Chronos\pgdata")) { throw 'uninstall deleted the data it must keep' }
           'uninstall removed services and kept the data'
 
+      # The workspace is on D: and the install logs on C:, and upload-artifact
+      # cannot compute a common root across drives ("least common ancestor is
+      # .."), which failed the first run. Gather everything under the
+      # workspace first, then upload one folder.
+      - name: Gather logs
+        if: always()
+        run: |
+          $dest = Join-Path $env:GITHUB_WORKSPACE 'ci-logs'
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+          if (Test-Path installer.log) { Copy-Item installer.log $dest }
+          if (Test-Path "$env:ProgramData\Chronos\logs") { Copy-Item "$env:ProgramData\Chronos\logs\*" $dest -Recurse -ErrorAction SilentlyContinue }
+          Get-ChildItem $dest | Select-Object Name, Length
+
       - name: Logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: logs
-          path: |
-            installer.log
-            C:\ProgramData\Chronos\logs\
+          path: ci-logs/
           if-no-files-found: ignore
-
-      - name: Installer
-        uses: actions/upload-artifact@v4
-        with:
-          name: ChronosSetup-${{ steps.version.outputs.value }}
-          path: packaging/windows/Output/*.exe
