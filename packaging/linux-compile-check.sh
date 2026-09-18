@@ -17,9 +17,8 @@ set -eu
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/packaging/build-linux"
-# Empty means "current release"; the version actually used is printed and
-# should then be pinned here and in the Windows build.
-NUITKA_VERSION=${NUITKA_VERSION:-}
+# Same version as packaging/windows/build.ps1 (verified by both builds).
+NUITKA_VERSION=${NUITKA_VERSION:-4.2.1}
 
 args_of() {
     grep -v '^[[:space:]]*#' "$ROOT/packaging/nuitka/$1.args" | grep -v '^[[:space:]]*$' | tr '\n' ' '

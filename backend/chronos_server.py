@@ -54,9 +54,15 @@ def _run_migrations(home: Path) -> None:
     # and this path deliberately has no ini file. Without this the install
     # log shows nothing between "Applying database migrations" and the
     # result, which is exactly where you want to see progress on site.
+    # To stdout, not logging's default stderr: the installer records this
+    # through a Windows PowerShell transcript, which does not capture a
+    # native program's stderr (the first Windows build showed no progress
+    # lines at all).
     logging.getLogger("alembic").setLevel(logging.INFO)
     if not logging.getLogger().handlers:
-        logging.basicConfig(level=logging.WARNING, format="%(levelname)s [%(name)s] %(message)s")
+        logging.basicConfig(
+            level=logging.WARNING, format="%(levelname)s [%(name)s] %(message)s", stream=sys.stdout
+        )
     cfg = Config()
     cfg.set_main_option("script_location", str(script_location))
     command.upgrade(cfg, "head")

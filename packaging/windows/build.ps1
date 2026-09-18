@@ -61,7 +61,9 @@ Step 'Python dependencies'
 Invoke-Checked 'pip install' { python -m pip install -q --upgrade pip }
 Invoke-Checked 'pip install' { python -m pip install -q -r (Join-Path $Root 'backend\requirements.txt') }
 Invoke-Checked 'pip install' { python -m pip install -q -r (Join-Path $Root 'worker\requirements.txt') }
-Invoke-Checked 'pip install' { python -m pip install -q nuitka ordered-set zstandard }
+# Pinned to the version verified by the Linux compile check and the first
+# Windows build, so the compiler cache stays valid between runs.
+Invoke-Checked 'pip install' { python -m pip install -q 'nuitka==4.2.1' ordered-set zstandard }
 python -m pip show nuitka | Select-String '^Version'
 
 Step 'Web UI'

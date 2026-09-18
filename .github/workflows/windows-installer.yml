@@ -48,7 +48,28 @@ jobs:
             choco install innosetup -y --no-progress
           }
 
+      # Nuitka turns every library into C and compiles it (~700 files per
+      # program); nearly all of that is unchanged between builds. Keeping the
+      # compiler cache means later runs mostly recompile only this app's code.
+      - name: Compiler cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}\nuitka-cache
+          key: nuitka-win-${{ hashFiles('packaging/nuitka/*.args', 'backend/requirements.txt', 'worker/requirements.txt', 'packaging/windows/build.ps1') }}
+          restore-keys: nuitka-win-
+
+      # Defender scanning every object file the compiler writes is a known
+      # large slowdown for Nuitka on Windows. Harmless if Defender is off.
+      - name: Exclude build folders from Defender
+        run: |
+          try {
+            Add-MpPreference -ExclusionPath "${{ github.workspace }}", "${{ runner.temp }}"
+            'Defender exclusion added'
+          } catch { "Defender exclusion not applied: $($_.Exception.Message)" }
+
       - name: Build installer
+        env:
+          NUITKA_CACHE_DIR: ${{ runner.temp }}\nuitka-cache
         run: ./packaging/windows/build.ps1 -Version "${{ steps.version.outputs.value }}"
 
       # ---------------------------------------------------------------------
