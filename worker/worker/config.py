@@ -7,7 +7,9 @@ _INSECURE_INTERNAL_KEY = "change-me-internal-key"
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    # Same shared config file as the API on the native Windows install; see
+    # backend/app/config.py.
+    model_config = SettingsConfigDict(env_file=os.environ.get("CHRONOS_ENV_FILE", ".env"), extra="ignore")
 
     api_base_url: str = "http://api:8000/api/v1"
     internal_api_key: str = _INSECURE_INTERNAL_KEY
@@ -32,6 +34,10 @@ class Settings(BaseSettings):
     device_timezone: str = "Europe/Tirane"
 
     worker_port: int = 8100
+    # Native install only: the internal "sync now" endpoint must be reachable
+    # from the API on this machine and nothing else. (In Docker, uvicorn's
+    # command line binds 0.0.0.0 inside a container that publishes no port.)
+    worker_host: str = "127.0.0.1"
 
     @model_validator(mode="after")
     def _reject_insecure_secret(self) -> "Settings":

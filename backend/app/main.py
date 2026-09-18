@@ -55,6 +55,31 @@ _PASSWORD_GATE_ALLOWLIST = {
 }
 
 
+_LOOPBACK_HOSTS = {"127.0.0.1", "::1", "localhost"}
+
+
+@app.middleware("http")
+async def restrict_internal_to_loopback(request: Request, call_next):
+    """Native deployment only (settings.internal_loopback_only).
+
+    In Docker, nginx returns 404 for /api/v1/internal/ so the LAN can never
+    reach the worker->api ingestion endpoints; the shared X-Internal-Key is
+    then a second line of defence rather than the only one. The native Windows
+    install has no nginx, so the same rule is enforced here: the worker runs on
+    this machine and connects over loopback, and anything else gets the same
+    404 — deliberately not 403, which would confirm the endpoint exists.
+
+    `request.client.host` is the real peer address because the native server
+    runs uvicorn with proxy headers disabled (there is no proxy in front of
+    it), so a LAN client cannot claim 127.0.0.1 through X-Forwarded-For.
+    """
+    if settings.internal_loopback_only and request.url.path.startswith("/api/v1/internal/"):
+        host = request.client.host if request.client else None
+        if host not in _LOOPBACK_HOSTS:
+            return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"detail": "Not Found"})
+    return await call_next(request)
+
+
 @app.middleware("http")
 async def enforce_password_change_gate(request: Request, call_next):
     path = request.url.path
@@ -123,3 +148,49 @@ app.include_router(internal.router, prefix=API_PREFIX)
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+def _mount_frontend(dist_dir: str) -> None:
+    """Serve the built web UI from the API itself (native deployment only).
+
+    Replaces nginx's `try_files $uri $uri/ /index.html`: a real file under the
+    build directory is returned as-is (hashed assets, the manual, the
+    favicon), and any other path falls back to index.html so the React router
+    can handle deep links like /employees/12 on a page refresh.
+
+    Registered last, after every API router, so it can never shadow an API
+    route; and anything under /api/ that reached this point is a genuine API
+    404, returned as JSON rather than the app's HTML shell.
+    """
+    from pathlib import Path
+
+    from fastapi.responses import FileResponse
+    from fastapi.staticfiles import StaticFiles
+
+    root = Path(dist_dir).resolve()
+    index = root / "index.html"
+    if not index.is_file():
+        raise RuntimeError(f"FRONTEND_DIST={dist_dir!r} has no index.html — build the frontend first")
+
+    assets = root / "assets"
+    if assets.is_dir():
+        # Content-hashed filenames, so they can be cached hard; StaticFiles
+        # also handles ranges and conditional requests.
+        app.mount("/assets", StaticFiles(directory=assets), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    def serve_frontend(full_path: str):
+        if full_path == "api" or full_path.startswith("api/"):
+            return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"detail": "Not Found"})
+        if full_path:
+            candidate = (root / full_path).resolve()
+            # Stay inside the build directory: `..` segments or an absolute
+            # path must never turn this into a way to read other files on the
+            # machine.
+            if candidate.is_file() and candidate.is_relative_to(root):
+                return FileResponse(candidate)
+        return FileResponse(index, headers={"Cache-Control": "no-cache"})
+
+
+if settings.frontend_dist:
+    _mount_frontend(settings.frontend_dist)

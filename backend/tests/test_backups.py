@@ -15,7 +15,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-COMPOSE_DIR = "/home/olti/web-agency/chronos-testing-env/chronos"
+from conftest import COMPOSE_DIR
+
 MARKER_PATH = "/backups/LAST_BACKUP"
 
 

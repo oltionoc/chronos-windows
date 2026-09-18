@@ -1,4 +1,3 @@
-import os
 from datetime import date as date_type
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -8,6 +7,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import false, func
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.database import get_db
 from app.deps import get_current_user
 from app.models import (
@@ -53,10 +53,11 @@ OUTSIDE_SCHEDULE_TOLERANCE = timedelta(hours=2)
 # that device sends is wrong by a payroll-relevant amount.
 CLOCK_DRIFT_TOLERANCE_SECONDS = 120
 
-# Written by the backup container after every attempt (ops/backup.sh),
-# mounted read-only into `api`. Overridable so a deployment can point at a
-# different backups folder without a rebuild.
-BACKUP_MARKER = Path(os.environ.get("BACKUP_MARKER_PATH", "/backups/LAST_BACKUP"))
+# Written by the backup job after every attempt (ops/backup.sh in Docker,
+# backup.ps1 on the native Windows install). Read through Settings rather than
+# os.environ so the value can come from the same config file as everything
+# else — the Windows services load chronos.env, which never reaches os.environ.
+BACKUP_MARKER = Path(settings.backup_marker_path)
 # A daily schedule plus one missed night. Past this, either the schedule is
 # not running or the machine has been off long enough to matter.
 BACKUP_MAX_AGE = timedelta(hours=36)

@@ -1,3 +1,5 @@
+import os
+
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -13,7 +15,10 @@ _INSECURE_INTERNAL_KEY = "change-me-internal-key"
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    # CHRONOS_ENV_FILE lets the native Windows services point at one shared
+    # config file (C:\ProgramData\Chronos\chronos.env) regardless of their
+    # working directory. Docker keeps using .env / real environment variables.
+    model_config = SettingsConfigDict(env_file=os.environ.get("CHRONOS_ENV_FILE", ".env"), extra="ignore")
 
     postgres_host: str = "db"
     postgres_port: int = 5432
@@ -39,6 +44,30 @@ class Settings(BaseSettings):
     # once the deployment is served over HTTPS (required before any Phase 2
     # internet-facing exposure, per BLUEPRINT.md Section 6.1's own flag).
     cookie_secure: bool = False
+
+    # ---- Native (non-Docker) deployment -----------------------------------
+    # In Docker, nginx serves the built web UI and blocks /api/v1/internal/
+    # from the LAN. The native Windows install has no nginx, so the API takes
+    # over both jobs when these are set. Both default off, which leaves the
+    # Docker deployment exactly as it was.
+    #
+    # Directory holding the built frontend (index.html + assets/). When set,
+    # the API serves it at / with single-page-app fallback.
+    frontend_dist: str | None = None
+    # When true, /api/v1/internal/* only answers connections from this same
+    # machine (127.0.0.1 / ::1). The worker runs on the same PC and connects
+    # over loopback; anything arriving from the network gets the same 404
+    # nginx returns in the Docker deployment.
+    internal_loopback_only: bool = False
+    # Written by the backup job after every attempt; read by the backup_stale
+    # alert. /backups is the Docker bind mount; the Windows install points
+    # this at its own data directory.
+    backup_marker_path: str = "/backups/LAST_BACKUP"
+    # Where chronos-server listens. Unused in Docker (uvicorn's command line
+    # sets it there); 8080 matches the port the Docker deployment exposes, so
+    # staff open the same address either way.
+    server_host: str = "0.0.0.0"
+    server_port: int = 8080
 
     @model_validator(mode="after")
     def _reject_insecure_secrets(self) -> "Settings":

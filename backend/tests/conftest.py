@@ -19,6 +19,7 @@ Run with:
 """
 import secrets
 import subprocess
+from pathlib import Path
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -26,6 +27,11 @@ import httpx
 import pytest
 
 API_BASE_URL = "http://localhost:8000/api/v1"
+
+# The compose project these tests drive: the checkout this file lives in
+# (backend/tests/ -> repo root). It used to be a hard-coded absolute path,
+# which silently pointed every copy of the repo at one particular stack.
+COMPOSE_DIR = str(Path(__file__).resolve().parents[2])
 
 # Unique per test-session suffix so re-running the suite never collides with
 # a previous (interrupted) run's leftover data, and so teardown can find
@@ -39,7 +45,7 @@ def _compose_exec_python(code: str) -> str:
     get DB access without a published Postgres port."""
     result = subprocess.run(
         ["docker", "compose", "exec", "-T", "api", "python", "-c", code],
-        cwd="/home/olti/web-agency/chronos-testing-env/chronos",
+        cwd=COMPOSE_DIR,
         capture_output=True,
         text=True,
         timeout=30,

@@ -1,0 +1,53 @@
+# Native-mode test harness. NOT a deployment file.
+#
+# The Windows install runs chronos without Docker and without nginx: one
+# compiled server that serves the UI and keeps /api/v1/internal/ to this
+# machine, and one compiled worker listening only on 127.0.0.1. This overlay
+# runs the same code through those same native entry points
+# (chronos_server.py / chronos_worker.py), so that topology is testable here:
+#
+#   * worker-native shares api-native's network namespace, so the two talk
+#     over real loopback exactly as they will on one Windows PC;
+#   * anything reaching api-native through the published port arrives from a
+#     non-loopback address, exactly like a PC on the client's LAN.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.native-test.yml \
+#     up -d --build db api-native worker-native
+#   (frontend/dist must be built first: cd frontend && npm run build)
+#
+# backend/tests/test_native_mode.py drives it on 127.0.0.1:8001.
+
+services:
+  api-native:
+    build: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-checkin}
+      POSTGRES_USER: ${POSTGRES_USER:-checkin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-checkin}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?INTERNAL_API_KEY must be set}
+      # Same machine, so loopback — as on the Windows install.
+      WORKER_INTERNAL_URL: http://127.0.0.1:8100
+    volumes:
+      # Mounted where the compiled program looks by default (./web next to
+      # the executable), so the default-path logic is what gets tested.
+      - ./frontend/dist:/app/web:ro
+    command: ["python", "chronos_server.py"]
+    ports:
+      - "127.0.0.1:8001:8080"
+
+  worker-native:
+    build: ./worker
+    depends_on:
+      - api-native
+    network_mode: "service:api-native"
+    environment:
+      API_BASE_URL: http://127.0.0.1:8080/api/v1
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?INTERNAL_API_KEY must be set}
+      DEVICE_TIMEZONE: ${DEVICE_TIMEZONE:-Europe/Tirane}
+    command: ["python", "chronos_worker.py"]
