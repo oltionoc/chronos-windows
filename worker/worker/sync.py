@@ -50,6 +50,21 @@ def poll_device(device: dict) -> list[dict]:
     return adapter(device)
 
 
+# Reading the enrolled user list, read-only. Hik-Connect has no such endpoint
+# in this integration, so the cloud transport is not offered.
+_USER_READERS = {
+    "zkteco": zkteco.list_users,
+    "hikvision": hikvision.list_users,
+}
+
+
+def list_device_users(device: dict) -> list[dict]:
+    reader = _USER_READERS.get(device["device_type"])
+    if reader is None:
+        raise ValueError(f"Reading users is not supported for {device['device_type']!r} devices")
+    return reader(device)
+
+
 def _safe_error(exc: Exception) -> str:
     """Poll failures surface to an operator through `api`'s
     POST /devices/{id}/sync response and the worker log, but the text can

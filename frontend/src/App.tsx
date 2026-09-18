@@ -30,6 +30,7 @@ import { AbsenceRuleConfigPage } from './pages/config/AbsenceRuleConfigPage';
 import { HolidaysConfigPage } from './pages/config/HolidaysConfigPage';
 import { LeaveTypesConfigPage } from './pages/config/LeaveTypesConfigPage';
 import { UsersPage } from './pages/settings/UsersPage';
+import { LicensePage } from './pages/settings/LicensePage';
 import { ProfilePage } from './pages/settings/ProfilePage';
 
 function App() {
@@ -81,6 +82,7 @@ function App() {
             <Route path="/locations" element={<LocationListPage />} />
             <Route path="/config/leave-types" element={<LeaveTypesConfigPage />} />
             <Route path="/settings/users" element={<UsersPage />} />
+            <Route path="/settings/license" element={<LicensePage />} />
           </Route>
         </Route>
       </Route>

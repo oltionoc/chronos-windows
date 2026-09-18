@@ -10,7 +10,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, status
 
 from worker import api_client
 from worker.config import settings
-from worker.sync import sync_all_devices, sync_one_device
+from worker.sync import list_device_users, sync_all_devices, sync_one_device
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("worker.main")
@@ -85,3 +85,18 @@ def manual_sync(device_id: int):
     if device is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Device not found or inactive")
     return sync_one_device(device)
+
+
+@app.post("/device-users/{device_id}", dependencies=[Depends(verify_internal_key)])
+def read_device_users(device_id: int):
+    """Read the users enrolled on a device (read-only), for `api`'s
+    `POST /devices/{id}/users`. The device is fetched from `api` the same way
+    manual_sync does, so the credentials never leave the api<->worker path."""
+    devices = api_client.get_active_devices()
+    device = next((d for d in devices if d["id"] == device_id), None)
+    if device is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Device not found or inactive")
+    try:
+        return {"users": list_device_users(device)}
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))

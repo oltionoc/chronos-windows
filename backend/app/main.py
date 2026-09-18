@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 
 from app.config import settings
 from app.database import SessionLocal
-from app.models import User
+from app.models import LicenseKey, User
 from app.routers import (
     attendance,
     auth,
@@ -15,6 +15,7 @@ from app.routers import (
     holidays,
     internal,
     leave,
+    license as license_router,
     locations,
     payroll,
     reports,
@@ -22,6 +23,7 @@ from app.routers import (
     users,
 )
 from app.security import COOKIE_NAME, decode_access_token
+from app.services.license import license_status
 
 app = FastAPI(title="chronos API", version="1.0.0")
 
@@ -109,6 +111,46 @@ async def enforce_password_change_gate(request: Request, call_next):
     return await call_next(request)
 
 
+# Paths that must keep working after the licence expires, so an admin can sign
+# in and paste a new key: the auth endpoints, and the licence endpoints. The
+# internal ingestion endpoints are never gated here (they are handled by the
+# loopback middleware above), so the worker keeps recording punches while the
+# licence is expired and no attendance day is lost.
+_LICENSE_GATE_ALLOWLIST = {
+    "/api/v1/auth/login",
+    "/api/v1/auth/me",
+    "/api/v1/auth/logout",
+    "/api/v1/auth/me/password",
+    "/api/v1/license/status",
+}
+
+
+@app.middleware("http")
+async def enforce_license(request: Request, call_next):
+    """Blocks the user-facing API when the licence has expired, with a 402 the
+    frontend turns into the "licence expired, paste a new key" screen. Read
+    per request (a newly pasted key must take effect immediately) but from a
+    tiny single-row table, so the cost is negligible."""
+    path = request.url.path
+    if (
+        path.startswith("/api/v1/")
+        and not path.startswith("/api/v1/internal/")
+        and path not in _LICENSE_GATE_ALLOWLIST
+    ):
+        db = SessionLocal()
+        try:
+            row = db.get(LicenseKey, 1)
+            status_ = license_status(row.key if row else None)
+        finally:
+            db.close()
+        if status_["expired"]:
+            return JSONResponse(
+                status_code=status.HTTP_402_PAYMENT_REQUIRED,
+                content={"detail": "Licence expired", "license": status_},
+            )
+    return await call_next(request)
+
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """Flattens Pydantic's structured 422 error list into a single `detail`
@@ -139,6 +181,7 @@ app.include_router(attendance.router, prefix=API_PREFIX)
 app.include_router(leave.router, prefix=API_PREFIX)
 app.include_router(config_router.router, prefix=API_PREFIX)
 app.include_router(holidays.router, prefix=API_PREFIX)
+app.include_router(license_router.router, prefix=API_PREFIX)
 app.include_router(payroll.router, prefix=API_PREFIX)
 app.include_router(users.router, prefix=API_PREFIX)
 app.include_router(reports.router, prefix=API_PREFIX)

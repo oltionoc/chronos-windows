@@ -9,8 +9,8 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import get_db
 from app.deps import assert_location_access, get_current_user, require_manager_or_admin
-from app.models import Device, Location, User
-from app.schemas import DeviceCreate, DeviceOut, DeviceTestConnectionResult, DeviceUpdate
+from app.models import Device, Employee, EmployeeDeviceEnrollment, Location, User
+from app.schemas import DeviceCreate, DeviceOut, DeviceTestConnectionResult, DeviceUpdate, DeviceUsersOut
 from app.services.device_net import assert_cloud_host, assert_safe_target
 
 router = APIRouter(prefix="/devices", tags=["devices"], dependencies=[Depends(require_manager_or_admin)])
@@ -316,3 +316,49 @@ def trigger_sync(device_id: int, db: Session = Depends(get_db), user: User = Dep
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY, detail=f"Could not reach sync worker: {exc}"
         )
+
+
+@router.post("/{device_id}/users", response_model=DeviceUsersOut)
+def read_device_users(device_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """Read the users enrolled on the device (read-only), each annotated with
+    whether it is already linked to an employee in this location. Proxies to
+    `worker`'s `/device-users/{id}` the same way trigger_sync does.
+
+    Used by the Devices page to link device users to employees without typing
+    device IDs by hand. Nothing is written to the device."""
+    device = _get_device_or_404(db, device_id)
+    assert_location_access(user, device.location_id)
+
+    try:
+        resp = httpx.post(
+            f"{settings.worker_internal_url}/device-users/{device_id}",
+            headers={"X-Internal-Key": settings.internal_api_key},
+            timeout=30,
+        )
+        resp.raise_for_status()
+        device_users = resp.json().get("users", [])
+    except httpx.HTTPError as exc:
+        detail = "Could not read users from the device"
+        if isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code == 400:
+            detail = exc.response.json().get("detail", detail)
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=detail)
+
+    # Existing enrollments for THIS device -> which device_user_id maps to whom.
+    enrolled = {
+        e.device_user_id: e
+        for e in db.query(EmployeeDeviceEnrollment).filter(EmployeeDeviceEnrollment.device_id == device_id).all()
+    }
+    items = []
+    for du in device_users:
+        uid = du["device_user_id"]
+        e = enrolled.get(uid)
+        emp = db.get(Employee, e.employee_id) if e else None
+        items.append(
+            {
+                "device_user_id": uid,
+                "name": du.get("name", ""),
+                "linked_employee_id": emp.id if emp else None,
+                "linked_employee_name": f"{emp.first_name} {emp.last_name}" if emp else None,
+            }
+        )
+    return DeviceUsersOut(location_id=device.location_id, users=items)

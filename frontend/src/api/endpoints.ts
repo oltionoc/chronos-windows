@@ -16,12 +16,14 @@ import type {
   DashboardSummary,
   Device,
   DeviceTestConnectionResult,
+  DeviceUsers,
   Employee,
   EmployeeDeviceEnrollment,
   EmployeeShiftAssignment,
   Holiday,
   LeaveRecord,
   LeaveType,
+  LicenseStatus,
   Location,
   OvertimeConfig,
   Paginated,
@@ -73,6 +75,12 @@ export const devicesApi = {
   testConnection: (id: number) =>
     apiRequest<DeviceTestConnectionResult>(`/devices/${id}/test-connection`, { method: 'POST' }),
   sync: (id: number) => apiRequest<void>(`/devices/${id}/sync`, { method: 'POST' }),
+  readUsers: (id: number) => apiRequest<DeviceUsers>(`/devices/${id}/users`, { method: 'POST' }),
+};
+
+export const licenseApi = {
+  status: () => apiRequest<LicenseStatus>('/license/status'),
+  install: (key: string) => apiRequest<LicenseStatus>('/license/status', { method: 'POST', body: { key } }),
 };
 
 // ---- Employees & enrollments (4.4) ----

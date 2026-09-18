@@ -163,6 +163,18 @@ class DeviceTestConnectionResult(BaseModel):
     detail: str | None = None
 
 
+class DeviceUserRow(BaseModel):
+    device_user_id: str
+    name: str
+    linked_employee_id: int | None = None
+    linked_employee_name: str | None = None
+
+
+class DeviceUsersOut(BaseModel):
+    location_id: int
+    users: list[DeviceUserRow]
+
+
 class InternalDeviceOut(BaseModel):
     """Worker-facing device shape (`/internal/devices`) — unlike DeviceOut,
     this includes auth_password, since worker genuinely needs it to
@@ -435,6 +447,24 @@ class SetExcusedRequest(BaseModel):
 
 class SetOvertimeApprovalRequest(BaseModel):
     approved: bool
+
+
+# ---------------------------------------------------------------------------
+# Licence
+# ---------------------------------------------------------------------------
+
+
+class LicenseStatusOut(BaseModel):
+    issued_to: str
+    edition: str
+    expires: date
+    days_left: int
+    expired: bool
+    expiring_soon: bool
+
+
+class LicenseInstall(BaseModel):
+    key: str
 
 
 # ---------------------------------------------------------------------------

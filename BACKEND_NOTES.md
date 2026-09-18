@@ -586,3 +586,53 @@ unchanged (and unaffected: every native behaviour below is opt-in).
   API's 30 s wait for the worker, so the user sees "Could not reach sync
   worker" (502) instead of "device unreachable". Hikvision fails in 15 s and
   reports correctly.
+
+## 13. 2026-09-18 licence gating + device user import (Windows edition)
+
+### Licence gating (migration 0015)
+
+Time-limits the install with a signed licence. RSA-2048 / PKCS#1 v1.5 /
+SHA-256; the app holds only the public key and **verifies** (pure Python —
+`pow()` + `hashlib`, no crypto dependency to compile into the Windows build).
+The private key is held by the vendor, off-repo, with `packaging/license/`
+tooling; the client can never mint or extend a licence.
+
+- `services/license.py`: public key, built-in default licence (beta, expires
+  **2026-11-10**), `parse_license` (verify), `effective_license`
+  (pasted-key-if-valid-and-not-shorter, else default), `license_status`.
+- `license_key` table (one row); `routers/license.py` exposes
+  `GET/POST /license/status` (paste validated + must not shorten the term).
+- Gate middleware in `main.py`: expired -> **402** for the user-facing API,
+  with `/auth/*` and `/license/status` allowlisted so an admin can always sign
+  in and paste a key. The `/internal/*` ingestion path is **not** gated, so the
+  worker keeps recording punches while locked — no attendance day lost.
+- Frontend: `LicenseProvider` polls hourly and flips to expired the instant any
+  request returns 402 (`licenseSignal.ts` bridges the plain API client to
+  React without an import cycle); `LicenseGate` shows a slim banner within 14
+  days of expiry and a full lock screen (admin gets a paste box, manager a
+  "contact admin" note) once expired; `settings/LicensePage` for viewing and
+  updating. Verified over HTTP on the native stack: default shows, garbage
+  rejected (400), a real 2027 key installs and becomes effective.
+- Tests: `tests/test_license.py` (10) — signature verify, forgery/tamper
+  rejection, the app carries no signing ability, the 402 gate via an
+  in-container TestClient with the clock pinned past expiry, login stays open,
+  a valid newer key lifts the block, and the ingestion path is never gated.
+
+### Device user import (read-only)
+
+Reads the users already enrolled on a terminal and links them to employees, so
+device IDs are not typed by hand. Read-only: nothing is written to the device.
+
+- Adapters gained `list_users` (ZKTeco `get_users()`; Hikvision ISAPI
+  `UserInfo/Search`, paged, same bounds as the punch poll). Worker endpoint
+  `POST /device-users/{id}` (loopback, shared-secret) and dispatch in
+  `sync.list_device_users`.
+- `api` `POST /devices/{id}/users` proxies to the worker (same pattern as
+  "Sync now") and annotates each device user with the employee it is already
+  linked to. Hik-Connect cloud has no such endpoint and is not offered.
+- Frontend `DeviceUsersPanel` on the device page: "Read users from device",
+  then per row Link-to-employee or Create-employee-and-link.
+- Test: `tests/test_device_users.py` — the link/not-linked annotation with the
+  worker call mocked in-container.
+
+Suite total: 211 passed, 7 skipped (native-mode when its harness is down).

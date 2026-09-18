@@ -127,6 +127,61 @@ def device_time(device: dict) -> datetime | None:
     return parsed
 
 
+def list_users(device: dict) -> list[dict]:
+    """Read the users enrolled on a Hikvision terminal, via ISAPI
+    UserInfo/Search. Read-only. Pages in blocks of 30 (the endpoint's own max)
+    up to MAX_PAGES, the same bound the punch poll uses, so one device can
+    never spin this forever.
+
+    Returns {device_user_id, name} per user. `employeeNo` is the number staff
+    key/scan under; `name` is the enrolled display name."""
+    host = safe_host(device["ip_address"])
+    port = safe_port(device["port"])
+    auth = httpx.DigestAuth(device.get("auth_username") or "", device.get("auth_password") or "")
+    url = f"http://{host}:{port}/ISAPI/AccessControl/UserInfo/Search?format=json"
+    search_id = uuid.uuid4().hex[:16]
+
+    users: list[dict] = []
+    position = 0
+    page_size = 30
+    with httpx.Client(auth=auth, timeout=15) as client:
+        for _ in range(MAX_PAGES):
+            body = {
+                "UserInfoSearchCond": {
+                    "searchID": search_id,
+                    "searchResultPosition": position,
+                    "maxResults": page_size,
+                }
+            }
+            data = _read_json(client.post(url, json=body)).get("UserInfoSearch") or {}
+            if not isinstance(data, dict):
+                raise RuntimeError(f"Unexpected UserInfoSearch shape: {type(data).__name__}")
+            info_list = data.get("UserInfo") or []
+            if not isinstance(info_list, list):
+                raise RuntimeError(f"Unexpected UserInfo shape: {type(info_list).__name__}")
+
+            for item in info_list:
+                if not isinstance(item, dict):
+                    continue
+                uid = str(item.get("employeeNo", "") or "").strip()
+                if not uid:
+                    continue
+                users.append({"device_user_id": uid, "name": str(item.get("name", "") or "").strip()})
+
+            num = data.get("numOfMatches", 0)
+            if not isinstance(num, int) or num <= 0:
+                break
+            position += num
+            if num < page_size or data.get("responseStatusStrg") == "NO MATCH":
+                break
+            if len(users) > MAX_PUNCHES:
+                raise RuntimeError(f"Device returned more than {MAX_PUNCHES} users — aborting")
+        else:
+            raise RuntimeError(f"Device never signalled end of user list after {MAX_PAGES} pages")
+
+    return users
+
+
 def poll(device: dict) -> list[dict]:
     host = safe_host(device["ip_address"])
     port = safe_port(device["port"])

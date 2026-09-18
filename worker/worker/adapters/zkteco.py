@@ -78,3 +78,32 @@ def poll(device: dict) -> list[dict]:
             }
         )
     return punches
+
+
+def list_users(device: dict) -> list[dict]:
+    """Read the users enrolled on a ZKTeco terminal. Read-only: it opens the
+    connection, reads, and disconnects, never writing to the device.
+
+    Returns {device_user_id, name} per user. pyzk's `get_users()` gives a
+    `user_id` (the number staff key/scan under) and a `name`."""
+    from zk import ZK
+
+    zk = ZK(safe_host(device["ip_address"]), port=safe_port(device["port"]), timeout=15, ommit_ping=True)
+    conn = None
+    try:
+        conn = zk.connect()
+        users = conn.get_users() or []
+    finally:
+        if conn is not None:
+            try:
+                conn.disconnect()
+            except Exception:
+                pass
+
+    out = []
+    for u in users:
+        uid = str(getattr(u, "user_id", "") or "").strip()
+        if not uid:
+            continue
+        out.append({"device_user_id": uid, "name": (getattr(u, "name", "") or "").strip()})
+    return out

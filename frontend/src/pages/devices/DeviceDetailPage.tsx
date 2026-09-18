@@ -17,7 +17,9 @@ import { formatDateTime, formatRelativeSync } from '../../lib/format';
 import { useToast } from '../../components/ui/Toast';
 import { ApiError } from '../../api/client';
 import { KeyValueGridSkeleton } from '../../components/ui/Skeleton';
+import { useAuth } from '../../auth/AuthContext';
 import type { DeviceType } from '../../api/types';
+import { DeviceUsersPanel } from './DeviceUsersPanel';
 
 type TestState = 'idle' | 'checking' | 'reachable' | 'unreachable';
 const DEVICE_TYPE_VALUES: DeviceType[] = ['zkteco', 'hikvision', 'hikvision_cloud'];
@@ -27,6 +29,8 @@ export function DeviceDetailPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const { id } = useParams();
   const deviceId = Number(id);
 
@@ -226,6 +230,10 @@ export function DeviceDetailPage() {
             </div>
           )}
         </Card>
+
+        {device.device_type !== 'hikvision_cloud' && (
+          <DeviceUsersPanel deviceId={deviceId} locationId={device.location_id} isAdmin={isAdmin} />
+        )}
       </div>
 
       <Modal open={editOpen} onClose={() => setEditOpen(false)} title={t('common.edit')}>

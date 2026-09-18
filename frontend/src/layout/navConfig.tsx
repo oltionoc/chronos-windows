@@ -16,6 +16,7 @@ import {
   UserCog,
   UserCircle,
   AlertTriangle,
+  KeyRound
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { CurrentUser } from '../api/types';
@@ -76,6 +77,7 @@ const adminNav: NavNode[] = [
     labelKey: 'nav.settings',
     items: [
       { type: 'link', labelKey: 'nav.settingsUsers', to: '/settings/users', icon: UserCog },
+      { type: 'link', labelKey: 'nav.settingsLicense', to: '/settings/license', icon: KeyRound },
       { type: 'link', labelKey: 'nav.settingsProfile', to: '/settings/profile', icon: UserCircle },
     ],
   },

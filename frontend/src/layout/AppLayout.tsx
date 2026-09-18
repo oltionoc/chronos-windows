@@ -12,6 +12,7 @@ import { hasUnseenAlerts } from '../lib/alertsSeen';
 import { Avatar } from '../components/ui/Avatar';
 import { RoleBadge } from '../components/ui/Badge';
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
+import { LicenseGate } from '../auth/LicenseGate';
 
 // DESIGN_SPEC §4.1 (sm/<640): language switcher + user menu move from the
 // topbar into the nav drawer's top section at these widths (topbar only
@@ -97,9 +98,11 @@ export function AppLayout() {
 
         <div className="flex min-w-0 flex-1 flex-col">
           <Topbar onOpenMobileNav={() => setMobileNavOpen(true)} />
-          <main className="flex-1 overflow-y-auto p-3 sm:p-6">
-            <Outlet />
-          </main>
+          <LicenseGate>
+            <main className="flex-1 overflow-y-auto p-3 sm:p-6">
+              <Outlet />
+            </main>
+          </LicenseGate>
         </div>
       </div>
     </PageHeaderProvider>

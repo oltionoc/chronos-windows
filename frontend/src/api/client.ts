@@ -4,6 +4,8 @@
 // to the `api` service in Docker Compose, so the default works unmodified in prod).
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) || '/api/v1';
 
+import { reportLicenseExpired } from './licenseSignal';
+
 export class ApiError extends Error {
   status: number;
   body: unknown;
@@ -63,6 +65,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   const data = isJson ? await res.json().catch(() => undefined) : undefined;
 
   if (!res.ok) {
+    if (res.status === 402) reportLicenseExpired();
     throw new ApiError(res.status, data, extractMessage(data));
   }
 

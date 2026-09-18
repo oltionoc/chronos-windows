@@ -439,3 +439,26 @@ export interface Analytics {
   top_late_employees: TopLateEmployee[];
   top_overtime_employees: TopOvertimeEmployee[];
 }
+
+
+// ---- Device users (read-only import) ----
+export interface DeviceUserRow {
+  device_user_id: string;
+  name: string;
+  linked_employee_id: number | null;
+  linked_employee_name: string | null;
+}
+export interface DeviceUsers {
+  location_id: number;
+  users: DeviceUserRow[];
+}
+
+// ---- Licence ----
+export interface LicenseStatus {
+  issued_to: string;
+  edition: string;
+  expires: string;
+  days_left: number;
+  expired: boolean;
+  expiring_soon: boolean;
+}

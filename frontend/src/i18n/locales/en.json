@@ -81,7 +81,8 @@
     "settingsUsers": "User Accounts",
     "settingsProfile": "My Profile",
     "configHolidays": "Holidays",
-    "manual": "Manual"
+    "manual": "Manual",
+    "settingsLicense": "Licence"
   },
   "status": {
     "attendance": {
@@ -547,5 +548,40 @@
   "notFound": {
     "title": "Page not found",
     "message": "The page you're looking for doesn't exist."
+  },
+  "license": {
+    "title": "Licence",
+    "subtitle": "When Chronos stops working, and how to extend it.",
+    "issuedTo": "Issued to",
+    "expires": "Expires",
+    "stateValid": "Active. Valid until {{date}}.",
+    "stateExpiring": "Expires in {{days}} day(s), on {{date}}. Ask for a new key before then.",
+    "stateExpired": "Expired on {{date}}. Paste a new key to continue.",
+    "installTitle": "Install a licence key",
+    "installHint": "Paste the key you were sent. It takes effect immediately, nothing is reinstalled.",
+    "keyPlaceholder": "Paste the licence key here",
+    "install": "Install key",
+    "installed": "Licence updated",
+    "bannerExpiring": "Chronos licence expires in {{days}} day(s), on {{date}}.",
+    "lockTitle": "Licence expired",
+    "lockBody": "This copy of Chronos has expired. Attendance is still being recorded in the background; paste a valid licence key to unlock the app.",
+    "lockManager": "Please ask your administrator to install a new licence key."
+  },
+  "deviceUsers": {
+    "title": "Users on device",
+    "hint": "Read the people enrolled on the terminal and link them to employees. Nothing is written to the device.",
+    "read": "Read users from device",
+    "none": "No users are enrolled on this device.",
+    "noName": "(no name on device)",
+    "link": "Link",
+    "notLinked": "Not linked",
+    "linkTitle": "Device user #{{id}}",
+    "linkExisting": "Link to employee",
+    "createNew": "Create employee",
+    "employee": "Employee",
+    "createHint": "Creates the employee and links this device user to them. You can fill in salary and the rest afterwards.",
+    "createAndLink": "Create and link",
+    "linked": "Linked to employee",
+    "created": "Employee created and linked"
   }
 }

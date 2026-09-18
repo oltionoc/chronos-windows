@@ -322,6 +322,20 @@ class AttendanceDailyStatus(TimestampMixin, Base):
     shift_schedule: Mapped["ShiftSchedule | None"] = relationship()
 
 
+class LicenseKey(Base):
+    """The pasted licence key, one row (id = 1). Absent or invalid -> the app
+    uses the built-in default licence. See services/license.py and
+    migration 0015."""
+
+    __tablename__ = "license_key"
+    __table_args__ = (CheckConstraint("id = 1", name="ck_license_singleton"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    key: Mapped[str] = mapped_column(Text, nullable=False)
+    installed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    installed_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+
+
 class Holiday(TimestampMixin, Base):
     """A public holiday. `location_id` NULL means every location, the same
     convention penalty/overtime/absence config already use.

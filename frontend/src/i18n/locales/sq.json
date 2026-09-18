@@ -81,7 +81,8 @@
     "settingsUsers": "Llogaritë e Përdoruesve",
     "settingsProfile": "Profili Im",
     "configHolidays": "Festat",
-    "manual": "Manuali"
+    "manual": "Manuali",
+    "settingsLicense": "Licenca"
   },
   "status": {
     "attendance": {
@@ -547,5 +548,40 @@
   "notFound": {
     "title": "Faqja nuk u gjet",
     "message": "Faqja që kërkoni nuk ekziston."
+  },
+  "license": {
+    "title": "Licenca",
+    "subtitle": "Kur ndalon Chronos dhe si të zgjatet.",
+    "issuedTo": "Lëshuar për",
+    "expires": "Skadon",
+    "stateValid": "Aktive. E vlefshme deri më {{date}}.",
+    "stateExpiring": "Skadon për {{days}} ditë, më {{date}}. Kërkoni një çelës të ri para asaj date.",
+    "stateExpired": "Skadoi më {{date}}. Ngjitni një çelës të ri për të vazhduar.",
+    "installTitle": "Instaloni një çelës licence",
+    "installHint": "Ngjitni çelësin që ju është dërguar. Vepron menjëherë, nuk riinstalohet asgjë.",
+    "keyPlaceholder": "Ngjitni çelësin e licencës këtu",
+    "install": "Instalo çelësin",
+    "installed": "Licenca u përditësua",
+    "bannerExpiring": "Licenca e Chronos skadon për {{days}} ditë, më {{date}}.",
+    "lockTitle": "Licenca skadoi",
+    "lockBody": "Kjo kopje e Chronos ka skaduar. Prezenca po regjistrohet ende në sfond; ngjitni një çelës të vlefshëm licence për ta zhbllokuar aplikacionin.",
+    "lockManager": "Ju lutemi kërkoni administratorit të instalojë një çelës të ri licence."
+  },
+  "deviceUsers": {
+    "title": "Përdoruesit në pajisje",
+    "hint": "Lexoni personat e regjistruar në aparat dhe lidhini me punonjësit. Asgjë nuk shkruhet në pajisje.",
+    "read": "Lexo përdoruesit nga pajisja",
+    "none": "Asnjë përdorues nuk është i regjistruar në këtë pajisje.",
+    "noName": "(pa emër në pajisje)",
+    "link": "Lidh",
+    "notLinked": "I palidhur",
+    "linkTitle": "Përdoruesi i pajisjes #{{id}}",
+    "linkExisting": "Lidh me punonjës",
+    "createNew": "Krijo punonjës",
+    "employee": "Punonjësi",
+    "createHint": "Krijon punonjësin dhe e lidh këtë përdorues të pajisjes me të. Pagën dhe të tjerat i plotësoni më vonë.",
+    "createAndLink": "Krijo dhe lidh",
+    "linked": "U lidh me punonjësin",
+    "created": "Punonjësi u krijua dhe u lidh"
   }
 }
