@@ -39,6 +39,10 @@ SolidCompression=yes
 WizardStyle=modern
 SetupLogging=yes
 UninstallDisplayName=Chronos
+; The chronos mark (built by make_icon.py): on the installer file itself, and
+; for Chronos in Settings > Apps.
+SetupIconFile=chronos.ico
+UninstallDisplayIcon={app}\chronos.ico
 CloseApplications=no
 
 [Files]
@@ -50,10 +54,13 @@ Source: "install.ps1"; DestDir: "{app}\scripts"; Flags: ignoreversion
 Source: "uninstall.ps1"; DestDir: "{app}\scripts"; Flags: ignoreversion
 Source: "backup.ps1"; DestDir: "{app}\scripts"; Flags: ignoreversion
 Source: "restore.ps1"; DestDir: "{app}\scripts"; Flags: ignoreversion
+Source: "chronos.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [INI]
 ; A plain internet shortcut: Chronos is used in the browser.
 Filename: "{commondesktop}\Chronos.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://localhost:8080"
+Filename: "{commondesktop}\Chronos.url"; Section: "InternetShortcut"; Key: "IconFile"; String: "{app}\chronos.ico"
+Filename: "{commondesktop}\Chronos.url"; Section: "InternetShortcut"; Key: "IconIndex"; String: "0"
 
 [UninstallRun]
 Filename: "powershell.exe"; \

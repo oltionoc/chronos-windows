@@ -51,6 +51,8 @@ $WindowsMeta = @(
     '--windows-product-name=Chronos',
     "--windows-file-version=$FileVersion",
     "--windows-product-version=$FileVersion",
+    # The chronos mark as the .exe icon (packaging/windows/make_icon.py).
+    "--windows-icon-from-ico=$(Join-Path $Here 'chronos.ico')",
     '--assume-yes-for-downloads'
 )
 
