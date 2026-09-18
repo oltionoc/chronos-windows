@@ -519,3 +519,70 @@ the schedule.
   hint path, the ZKTeco raw-code path, exempt-vs-thresholded arithmetic side
   by side, both kinds on one day, an unclosed pair, an overtime-only day, and
   payment through a real payroll run. Suite total 185.
+
+## 12. 2026-09-18 Windows edition (native install, no Docker)
+
+A second delivery of the same application: a Windows installer
+(`ChronosSetup.exe`) that installs compiled programs as Windows services, so
+the client gets no Docker and no readable source. The Docker line is
+unchanged (and unaffected: every native behaviour below is opt-in).
+
+- **Native mode in the API.** Without nginx, the API takes over nginx's two
+  jobs when `FRONTEND_DIST` / `INTERNAL_LOOPBACK_ONLY` are set: it serves the
+  built UI with SPA fallback (resolved paths confined to the build directory),
+  and answers `/api/v1/internal/` only to 127.0.0.1/::1 with the same 404 nginx
+  gives. `chronos_server.py` forces loopback-only on and runs uvicorn with
+  proxy headers off, so `X-Forwarded-For: 127.0.0.1` from the LAN is ignored.
+  The worker's internal endpoint binds 127.0.0.1.
+- **Entry points** `backend/chronos_server.py` (migrate, then serve) and
+  `worker/chronos_worker.py`, compiled with Nuitka. uvicorn's loop, protocol
+  and websocket implementations are pinned (`asyncio`, `h11`, none) because it
+  otherwise picks them by module name at run time, which a compiled build may
+  not contain.
+- **One config file** for both services via `CHRONOS_ENV_FILE`; the backup
+  marker path moved into Settings for the same reason (the services' config
+  never reaches `os.environ`).
+- **`tzdata`** added to the backend: Windows has no system timezone database,
+  so `ZoneInfo("Europe/Tirane")` would fail on the first recompute.
+- **Compile flags** live in `packaging/nuitka/*.args`, read by both
+  `packaging/linux-compile-check.sh` and `packaging/windows/build.ps1`. Three
+  things the Linux compile check caught that a normal run never would:
+  1. `--include-data-dir` silently drops `.py` files, so the migrations never
+     made it into the build and a fresh install could not create its database.
+     Now `--include-raw-dir=alembic=alembic`; the build fails if any other
+     `.py` file ships.
+  2. APScheduler finds its thread-pool executor through package entry points,
+     so its distribution metadata must be included explicitly.
+  3. ~45 MB per program of optional accelerators that are never used (uvloop,
+     httptools, watchfiles, websockets, zstandard) are excluded.
+  Verified on Linux: both compiled programs pass the 14 native-mode tests and
+  the compiled server migrates an empty database to head with the bootstrap
+  admin seeded.
+- **Windows packaging** (`packaging/windows/`): `install.ps1` (idempotent:
+  config with generated secrets, ACL'd to SYSTEM/Administrators; PostgreSQL 16
+  cluster on 127.0.0.1:55432 as service ChronosPostgres under NETWORK SERVICE;
+  role and database; migrations run synchronously so failures stop the
+  installer; WinSW services ChronosServer/ChronosWorker with restart-on-failure;
+  firewall rule on private/domain profiles only; "Chronos Backup" task daily
+  and at boot), `uninstall.ps1` (keeps data unless `-RemoveData`),
+  `backup.ps1`, `restore.ps1`, Inno Setup script, `build.ps1`.
+  **Not yet run on Windows**: parse-checked with Windows PowerShell only.
+  `.github/workflows/windows-installer.yml` builds on a clean Windows runner,
+  installs silently, smoke-tests (services, UI, login, loopback vs network on
+  internal endpoints, worker bound to loopback, verified backup, no source
+  shipped), upgrades in place, uninstalls, and uploads the installer.
+
+### Bugs found along the way
+
+- **Sessions dropped right after login** (fixed here, also present in the
+  Docker line and its published images): a backward wall-clock step between
+  issuing and checking a token made PyJWT reject it as issued in the future.
+  Measured on Docker Desktop for Windows: 1 in ~2.1M mint-then-verify cycles;
+  it was the cause of the intermittent 401s in this suite (and, in hindsight,
+  of the "transient" backup-test failure attributed to rate limiting earlier).
+  Tokens are now verified with a 30 s leeway. `tests/test_token_clock_skew.py`.
+- **"Sync now" on an offline ZKTeco reports the wrong thing** (not fixed): an
+  unreachable ZKTeco takes 30 s to fail (pyzk retries), which is exactly the
+  API's 30 s wait for the worker, so the user sees "Could not reach sync
+  worker" (502) instead of "device unreachable". Hikvision fails in 15 s and
+  reports correctly.

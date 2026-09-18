@@ -29,6 +29,7 @@ def main(argv: list[str] | None = None) -> int:
         port=args.port or settings.worker_port,
         loop="asyncio",
         http="h11",
+        ws="none",
         proxy_headers=False,
         log_level="info",
     )

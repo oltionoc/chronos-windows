@@ -1,0 +1,41 @@
+# Nuitka flags for chronos-server. One flag per line; '#' lines are comments.
+# Read by both packaging/linux-compile-check.sh and the Windows build, so the
+# two can never compile different programs.
+--standalone
+--output-filename=chronos-server
+--include-package=app
+# uvicorn chooses its protocol, loop and lifespan implementations by module
+# name at run time, which static analysis cannot see.
+--include-module=uvicorn.protocols.http.h11_impl
+--include-module=uvicorn.loops.asyncio
+--include-module=uvicorn.lifespan.on
+# passlib resolves the bcrypt handler by name from its registry.
+--include-module=passlib.handlers.bcrypt
+# SQLAlchemy loads the dialect from the URL scheme at run time.
+--include-package=sqlalchemy.dialects.postgresql
+--include-module=psycopg2
+# Migrations are executed from files by alembic at run time and import alembic
+# and sqlalchemy themselves, so the whole of alembic must be present.
+--include-package=alembic
+# The migration scripts themselves. NOT --include-data-dir: that silently drops
+# .py files as "code", which left only script.py.mako and a server that could
+# not create its database. Raw-dir copies the directory as it is.
+--include-raw-dir=alembic=alembic
+# alembic.testing pulls in sqlalchemy.testing and through it pytest.
+--nofollow-import-to=alembic.testing
+--nofollow-import-to=sqlalchemy.testing
+# Windows has no system timezone database; tzdata ships it as package data.
+--include-package=tzdata
+--include-package-data=tzdata
+--nofollow-import-to=pytest
+--nofollow-import-to=tests
+# Optional accelerators that are never used: uvicorn is pinned to the plain
+# asyncio loop, h11 and no websockets (see chronos_*.py), and zstandard is an
+# optional compression backend that only got picked up because it is
+# installed in the build environment. Together ~40 MB per program.
+--nofollow-import-to=uvloop
+--nofollow-import-to=httptools
+--nofollow-import-to=watchfiles
+--nofollow-import-to=websockets
+--nofollow-import-to=wsproto
+--nofollow-import-to=zstandard

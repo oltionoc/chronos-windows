@@ -13,3 +13,12 @@ dist/
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# Nuitka compile check output
+packaging/build-linux/
+
+# Windows build outputs
+packaging/windows/stage/
+packaging/windows/build/
+packaging/windows/downloads/
+packaging/windows/Output/

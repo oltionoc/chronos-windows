@@ -1,18 +1,19 @@
-# chronos — beta
+# chronos — Windows edition
 
 Bilingual (Albanian/English) attendance and payroll system for multi-location
 businesses in Kosovo. Punches come off fingerprint/face terminals, the system
 turns them into lateness, overtime, absence and leave, and produces a monthly
 payroll run.
 
-This README is the operator's runbook: what YOU do, in order, from the day the
-device is installed.
+**This folder is the Windows edition**: the same application, delivered as a
+normal Windows installer (`ChronosSetup.exe`) instead of Docker, with the
+server and worker compiled to machine code. See
+[Windows installer](#windows-installer) below. The Docker-based line lives
+unchanged in `chronos-beta`.
 
-The client's staff get their own non-technical Albanian manual, and they do
-not need this file or a copy of anything: the app serves the manual itself at
-`http://<pc-ip>:8080/manuali.html`, linked from the sidebar as **Manuali**. It
-is a static page inside the frontend image, so it opens with no internet
-connection — some sites have none. The markdown source lives at
+The client's staff get their own non-technical Albanian manual, served by the
+app itself at `http://<pc-ip>:8080/manuali.html` and linked from the sidebar
+as **Manuali** — it opens with no internet connection. The markdown source is
 [`client/MANUALI.md`](client/MANUALI.md); edit it and
 `frontend/public/manuali.html` together, they do not track each other.
 
@@ -24,13 +25,90 @@ connection — some sites have none. The markdown source lives at
 backend/    FastAPI + SQLAlchemy + Alembic (the API and all payroll logic)
 worker/     Polls the terminals, pushes punches into the API
 frontend/   React + Vite + Tailwind (the web app, Albanian + English)
-ops/        backup.sh, restore.sh, release.sh
-client/     Everything that goes on the CLIENT's machine (no source code)
-docker-compose.yml   Development stack, builds from source
+ops/        backup.sh, restore.sh, release.sh (Docker deployment)
+client/     Docker deployment bundle for a client PC (no source code)
+packaging/
+  nuitka/     compile flags, shared by the Linux check and the Windows build
+  windows/    installer: build.ps1, chronos.iss, install/uninstall/backup/restore
+  linux-compile-check.sh
+.github/workflows/windows-installer.yml   builds + installs + tests the .exe on Windows
+docker-compose.yml               development stack, builds from source
+docker-compose.native-test.yml   runs the native (Windows-style) topology for tests
 ```
 
 Internal build documents (`BLUEPRINT.md`, `SECURITY_REPORT.md`,
 `BACKEND_NOTES.md`, …) stay in this repo and are never shipped to a client.
+
+---
+
+## Windows installer
+
+### What the client's PC gets
+
+One `ChronosSetup-<version>.exe`. Running it (as Administrator) installs:
+
+| Where | What |
+|---|---|
+| `C:\Program Files\Chronos\server\chronos-server.exe` | API + web UI, **compiled** (Nuitka) — Windows service **ChronosServer**, port 8080 |
+| `C:\Program Files\Chronos\worker\chronos-worker.exe` | device sync, **compiled** — service **ChronosWorker**, listens on 127.0.0.1 only |
+| `C:\Program Files\Chronos\pgsql\` | PostgreSQL 16 — service **ChronosPostgres**, 127.0.0.1:55432 only |
+| `C:\ProgramData\Chronos\chronos.env` | config + generated secrets, readable by SYSTEM/Administrators only |
+| `C:\ProgramData\Chronos\pgdata\` | the database |
+| `C:\ProgramData\Chronos\backups\` | nightly verified dumps (task **Chronos Backup**, 02:30 and at boot) |
+| `C:\ProgramData\Chronos\logs\` | install log and service logs |
+
+Plus a firewall rule for TCP 8080 on **private/domain networks only**, and a
+desktop shortcut to `http://localhost:8080`. No Docker, no WSL, no Python.
+
+**No readable source ships.** The only Python files on disk are the database
+migration scripts, which alembic loads from files by design; they contain
+schema definitions only, which the database exposes anyway. The build fails
+if any other `.py` file ends up in it. Honest limit: compiled code can still
+be reverse-engineered by someone with administrator rights and a lot of time —
+pair this with not giving the client admin on that PC, and a signed licence.
+
+### Building it
+
+Nuitka cannot cross-compile, so the Windows executables are built on
+Windows. Two ways:
+
+- **GitHub Actions (recommended).** Push this repo to GitHub, then Actions →
+  *Windows installer* → *Run workflow* (or push a tag like `v0.1.0`). The
+  job builds the installer on a clean Windows machine, **installs it there**,
+  checks services, web UI, login, backups, that internal endpoints refuse the
+  network and that no source shipped, re-runs it as an upgrade, uninstalls,
+  and uploads `ChronosSetup-<version>.exe` as an artifact.
+- **On a Windows PC** with Python 3.12, Node 20, Visual Studio Build Tools
+  and Inno Setup 6: `powershell -ExecutionPolicy Bypass -File packaging\windows\build.ps1 -Version 0.1.0`.
+
+Before either, `./packaging/linux-compile-check.sh` compiles both programs on
+Linux with the **same Nuitka flags** (`packaging/nuitka/*.args`) and runs
+them; most compiled-build failures (modules loaded by name, missing data
+files, missing package metadata) show up there first and much faster.
+
+### Installing on site
+
+1. Copy `ChronosSetup-<version>.exe` to the PC, run it as Administrator.
+2. When it finishes, open `http://localhost:8080` (desktop shortcut) and sign
+   in as `admin` / `ChangeMe123!` — you are forced to change it.
+3. **Copy `C:\ProgramData\Chronos\chronos.env` somewhere safe, off that
+   PC.** Its secrets cannot be recovered from a backup.
+4. Continue with [First-run configuration](#3-first-run-configuration-in-this-order).
+
+Other PCs on the office network reach it at `http://<that-pc-ip>:8080`.
+
+### Upgrading, removing, restoring
+
+- **Upgrade:** run the newer `ChronosSetup` over the old one. It stops the
+  services, replaces the programs, keeps `chronos.env` and the database,
+  migrates, and starts everything again.
+- **Uninstall:** Windows Settings → Apps → Chronos. Services, firewall rule
+  and backup task are removed; **the database, backups and config are kept**
+  in `C:\ProgramData\Chronos`. Delete that folder by hand only if you mean it.
+- **Restore a backup** (Administrator PowerShell):
+  `& "C:\Program Files\Chronos\scripts\restore.ps1" -DumpFile "C:\ProgramData\Chronos\backups\<file>.dump"`
+- **If setup reports it could not finish:** `C:\ProgramData\Chronos\logs\install.log`.
+  Service output is next to it (`ChronosServer.out.log`, `ChronosWorker.out.log`).
 
 ---
 

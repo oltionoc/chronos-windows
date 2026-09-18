@@ -45,9 +45,18 @@ def _run_migrations(home: Path) -> None:
     from alembic import command
     from alembic.config import Config
 
+    import logging
+
     script_location = home / "alembic"
     if not (script_location / "env.py").is_file():
         raise RuntimeError(f"migrations not found at {script_location}")
+    # alembic.ini is what normally turns on "Running upgrade X -> Y" lines,
+    # and this path deliberately has no ini file. Without this the install
+    # log shows nothing between "Applying database migrations" and the
+    # result, which is exactly where you want to see progress on site.
+    logging.getLogger("alembic").setLevel(logging.INFO)
+    if not logging.getLogger().handlers:
+        logging.basicConfig(level=logging.WARNING, format="%(levelname)s [%(name)s] %(message)s")
     cfg = Config()
     cfg.set_main_option("script_location", str(script_location))
     command.upgrade(cfg, "head")
@@ -94,6 +103,7 @@ def main(argv: list[str] | None = None) -> int:
         # contain. Both of these are pure Python and always present.
         loop="asyncio",
         http="h11",
+        ws="none",
         # Nothing sits in front of this server, so X-Forwarded-For must not be
         # trusted — it is what the internal-endpoint loopback check relies on.
         proxy_headers=False,

@@ -1,0 +1,21 @@
+# Layer on top of docker-compose.native-test.yml to run the COMPILED
+# chronos-server / chronos-worker (from packaging/linux-compile-check.sh)
+# instead of the Python entry points. NOT a deployment file.
+#
+#   ./packaging/linux-compile-check.sh
+#   cp -r frontend/dist packaging/build-linux/server/web     # as build.ps1 stages it
+#   docker compose -f docker-compose.yml -f docker-compose.native-test.yml \
+#     -f docker-compose.compiled-test.yml up -d --force-recreate api-native worker-native
+#
+# backend/tests/test_native_mode.py then exercises the compiled programs.
+
+services:
+  api-native:
+    volumes:
+      - ./packaging/build-linux/server:/opt/chronos/server:ro
+    command: ["/opt/chronos/server/chronos-server"]
+
+  worker-native:
+    volumes:
+      - ./packaging/build-linux/worker:/opt/chronos/worker:ro
+    command: ["/opt/chronos/worker/chronos-worker"]

@@ -1,0 +1,25 @@
+# Nuitka flags for chronos-worker. See server.args.
+--standalone
+--output-filename=chronos-worker
+--include-package=worker
+--include-module=uvicorn.protocols.http.h11_impl
+--include-module=uvicorn.loops.asyncio
+--include-module=uvicorn.lifespan.on
+# APScheduler finds its default thread-pool executor and memory job store
+# through package entry points; without the distribution metadata a compiled
+# build fails at startup with "No executor by the name 'threadpool'".
+--include-package=apscheduler
+--include-distribution-metadata=APScheduler
+--include-package=zk
+--include-package=tzdata
+--include-package-data=tzdata
+# Optional accelerators that are never used: uvicorn is pinned to the plain
+# asyncio loop, h11 and no websockets (see chronos_*.py), and zstandard is an
+# optional compression backend that only got picked up because it is
+# installed in the build environment. Together ~40 MB per program.
+--nofollow-import-to=uvloop
+--nofollow-import-to=httptools
+--nofollow-import-to=watchfiles
+--nofollow-import-to=websockets
+--nofollow-import-to=wsproto
+--nofollow-import-to=zstandard
