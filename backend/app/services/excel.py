@@ -64,7 +64,25 @@ def generate_payroll_run_xlsx(run: PayrollRun, lines: list[PayrollRunLine]) -> b
     return buf.getvalue()
 
 
-def generate_payslip_xlsx(line: PayrollRunLine, adjustments: list[PayrollAdjustment]) -> bytes:
+_DAILY_HEADERS = [
+    "Date",
+    "Status",
+    "Scheduled",
+    "First In",
+    "Last Out",
+    "Late (min)",
+    "Early Leave (min)",
+    "Break (min)",
+    "Overtime (min)",
+    "Penalty Events",
+]
+
+
+def generate_payslip_xlsx(
+    line: PayrollRunLine,
+    adjustments: list[PayrollAdjustment],
+    daily_rows: list[list] | None = None,
+) -> bytes:
     emp = line.employee
     run = line.run
     wb = Workbook()
@@ -106,6 +124,19 @@ def generate_payslip_xlsx(line: PayrollRunLine, adjustments: list[PayrollAdjustm
     ws.column_dimensions["A"].width = 24
     ws.column_dimensions["B"].width = 30
     ws.column_dimensions["C"].width = 16
+
+    # Per-day breakdown for the month (client req: one row per day of the
+    # month per employee, with the times, lateness and overtime that fed the
+    # totals above). Times are already formatted in the location's timezone.
+    if daily_rows is not None:
+        ds = wb.create_sheet("Daily")
+        ds.append(_DAILY_HEADERS)
+        for cell in ds[1]:
+            cell.font = Font(bold=True)
+        for row in daily_rows:
+            ds.append(row)
+        for col in range(1, len(_DAILY_HEADERS) + 1):
+            ds.column_dimensions[get_column_letter(col)].width = 16
 
     buf = io.BytesIO()
     wb.save(buf)

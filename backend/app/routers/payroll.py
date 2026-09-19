@@ -1,4 +1,6 @@
-from datetime import datetime, timezone
+import calendar
+from datetime import date, datetime, timezone
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import Response
@@ -7,7 +9,14 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.deps import assert_location_access, require_manager_or_admin
-from app.models import Employee, PayrollAdjustment, PayrollRun, PayrollRunLine, User
+from app.models import (
+    AttendanceDailyStatus,
+    Employee,
+    PayrollAdjustment,
+    PayrollRun,
+    PayrollRunLine,
+    User,
+)
 from app.schemas import (
     PayrollAdjustmentCreate,
     PayrollAdjustmentOut,
@@ -208,6 +217,57 @@ def finalize_run(run_id: int, db: Session = Depends(get_db), user: User = Depend
     return _serialize_run(run, db)
 
 
+def _daily_breakdown_rows(db: Session, run: PayrollRun, employee_id: int) -> list[list]:
+    """One row per calendar day of the run's month for this employee: the
+    scheduled window, the actual in/out (in the location's timezone), and the
+    lateness/break/overtime that fed the monthly totals. Days with no computed
+    status (e.g. before hire) show blanks."""
+    tz = ZoneInfo(run.location.timezone) if run.location and run.location.timezone else timezone.utc
+    days_in_month = calendar.monthrange(run.period_year, run.period_month)[1]
+    first = date(run.period_year, run.period_month, 1)
+    last = date(run.period_year, run.period_month, days_in_month)
+
+    statuses = {
+        s.work_date: s
+        for s in db.query(AttendanceDailyStatus)
+        .filter(
+            AttendanceDailyStatus.employee_id == employee_id,
+            AttendanceDailyStatus.work_date >= first,
+            AttendanceDailyStatus.work_date <= last,
+        )
+        .all()
+    }
+
+    def _t(dt: datetime | None) -> str:
+        return dt.astimezone(tz).strftime("%H:%M") if dt else ""
+
+    def _sched(s: AttendanceDailyStatus) -> str:
+        if s.scheduled_start and s.scheduled_end:
+            return f"{s.scheduled_start.strftime('%H:%M')}-{s.scheduled_end.strftime('%H:%M')}"
+        return ""
+
+    rows: list[list] = []
+    for day_num in range(1, days_in_month + 1):
+        d = date(run.period_year, run.period_month, day_num)
+        s = statuses.get(d)
+        if s is None:
+            rows.append([d.isoformat(), "", "", "", "", "", "", "", "", ""])
+            continue
+        rows.append([
+            d.isoformat(),
+            s.status,
+            _sched(s),
+            _t(s.actual_first_in),
+            _t(s.actual_last_out),
+            s.late_minutes,
+            s.early_departure_minutes,
+            s.break_minutes_taken,
+            s.overtime_minutes,
+            s.penalty_occurrences,
+        ])
+    return rows
+
+
 @router.get("/runs/{run_id}/lines/{employee_id}/payslip.xlsx")
 def export_payslip_xlsx(run_id: int, employee_id: int, db: Session = Depends(get_db), user: User = Depends(require_manager_or_admin)):
     run = _get_run_or_404(db, run_id)
@@ -216,7 +276,8 @@ def export_payslip_xlsx(run_id: int, employee_id: int, db: Session = Depends(get
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Payslip is only available once the run is finalized")
     line = _get_line(db, run_id, employee_id)
     emp = line.employee
-    content = generate_payslip_xlsx(line, line.adjustments)
+    daily_rows = _daily_breakdown_rows(db, run, employee_id)
+    content = generate_payslip_xlsx(line, line.adjustments, daily_rows)
     filename = f"payslip_{emp.employee_code}_{run.period_year}-{run.period_month:02d}.xlsx"
     return Response(
         content=content,

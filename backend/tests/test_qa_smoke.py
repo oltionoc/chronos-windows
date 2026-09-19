@@ -453,6 +453,19 @@ def test_payroll_run_finalize_and_excel_exports(admin_client, world):
     assert r.status_code == 200, r.text
     assert zipfile.is_zipfile(io.BytesIO(r.content))
 
+    # The payslip carries a per-day breakdown for the whole month (client
+    # req: one row per day of the month for the employee).
+    import calendar as _cal
+
+    from openpyxl import load_workbook
+
+    wb = load_workbook(io.BytesIO(r.content))
+    assert "Daily" in wb.sheetnames
+    daily = wb["Daily"]
+    days_in_month = _cal.monthrange(prev_month_anchor.year, prev_month_anchor.month)[1]
+    assert daily.max_row == days_in_month + 1  # header + one row per day
+    assert [c.value for c in daily[1]][:3] == ["Date", "Status", "Scheduled"]
+
     # A finalized run is immutable: no new adjustments, no deletion,
     # no second finalize.
     r = admin_client.post(
