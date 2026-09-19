@@ -508,10 +508,7 @@
     "mustChangeNotice": "You must set a new password before continuing.",
     "languageSection": "Language",
     "languageAlbanian": "Shqip",
-    "languageEnglish": "English",
-    "displaySection": "Display",
-    "showWeeklySchedule": "Show Weekly Schedule in the menu",
-    "showWeeklyScheduleHint": "Weekly Schedule is hidden because shifts are planned in Daily Schedule. Turn this on to see the fixed weekly view. (The weekly fallback still applies even when hidden.)"
+    "languageEnglish": "English"
   },
   "form": {
     "unsavedTitle": "Discard changes?"

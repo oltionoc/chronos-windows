@@ -8,8 +8,6 @@ import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher';
-import { Toggle } from '../../components/ui/Controls';
-import { useShowWeeklySchedule, setShowWeeklySchedule } from '../../lib/uiPrefs';
 import { RoleBadge } from '../../components/ui/Badge';
 import { useToast } from '../../components/ui/Toast';
 import { ApiError } from '../../api/client';
@@ -21,7 +19,6 @@ export function ProfilePage() {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const { user, refresh } = useAuth();
-  const showWeekly = useShowWeeklySchedule();
   usePageTitle(t('profile.title'));
 
   const [currentPassword, setCurrentPassword] = useState('');
@@ -109,15 +106,6 @@ export function ProfilePage() {
 
         <Card title={t('profile.languageSection')}>
           <LanguageSwitcher size="large" />
-        </Card>
-
-        <Card title={t('profile.displaySection')}>
-          <Toggle
-            checked={showWeekly}
-            onChange={setShowWeeklySchedule}
-            label={t('profile.showWeeklySchedule')}
-          />
-          <p className="mt-2 text-caption text-neutral-500">{t('profile.showWeeklyScheduleHint')}</p>
         </Card>
       </div>
     </div>

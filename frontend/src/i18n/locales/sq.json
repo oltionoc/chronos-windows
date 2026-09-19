@@ -508,10 +508,7 @@
     "mustChangeNotice": "Duhet të vendosni një fjalëkalim të ri para se të vazhdoni.",
     "languageSection": "Gjuha",
     "languageAlbanian": "Shqip",
-    "languageEnglish": "English",
-    "displaySection": "Pamja",
-    "showWeeklySchedule": "Shfaq Orarin Javor në menu",
-    "showWeeklyScheduleHint": "Orari Javor është i fshehur sepse turnet planifikohen te Orari Ditor. Ndizeni nëse doni ta shihni orarin fiks javor. (Rezerva javore vazhdon të vlejë edhe kur është i fshehur.)"
+    "languageEnglish": "English"
   },
   "form": {
     "unsavedTitle": "Të hidhen poshtë ndryshimet?"
