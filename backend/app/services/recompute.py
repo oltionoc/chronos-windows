@@ -210,6 +210,17 @@ def _compute(db: Session, employee_id: int, work_date: date) -> dict:
         if ret.punch_timestamp > departure.punch_timestamp:
             break_minutes_taken += int((ret.punch_timestamp - departure.punch_timestamp).total_seconds() // 60)
 
+    # Chargeable events for the flat-per-occurrence penalty: late to work,
+    # early from work, and a break that ran longer than the scheduled break
+    # window plus grace (returned late). Each counts once. Break violations
+    # were not penalised at all before.
+    allowed_break = sum(
+        int((datetime.combine(work_date, bw.end) - datetime.combine(work_date, bw.start)).total_seconds() // 60)
+        for bw in resolved.break_windows
+    )
+    break_violation = 1 if resolved.break_windows and break_minutes_taken > allowed_break + grace else 0
+    penalty_occurrences = (1 if late_minutes > 0 else 0) + (1 if early_departure_minutes > 0 else 0) + break_violation
+
     status = "late" if late_minutes > 0 else "present"
 
     return {
@@ -220,6 +231,7 @@ def _compute(db: Session, employee_id: int, work_date: date) -> dict:
         "actual_last_out": actual_last_out,
         "late_minutes": late_minutes,
         "early_departure_minutes": early_departure_minutes,
+        "penalty_occurrences": penalty_occurrences,
         "overtime_minutes": overtime_minutes,
         "break_minutes_taken": break_minutes_taken,
         "status": status,
@@ -293,6 +305,7 @@ def _holiday_result(
         "actual_last_out": work_out[-1].punch_timestamp if work_out else None,
         "late_minutes": 0,
         "early_departure_minutes": 0,
+        "penalty_occurrences": 0,
         # Work badged as overtime on a holiday is still holiday work, counted
         # once — the punch types are disjoint, so this cannot double-count.
         "overtime_minutes": max(0, worked_minutes - break_minutes_taken) + _badged_overtime_minutes(day_logs),
@@ -384,6 +397,7 @@ def _blank_result(
         "actual_last_out": None,
         "late_minutes": 0,
         "early_departure_minutes": 0,
+        "penalty_occurrences": 0,
         "overtime_minutes": 0,
         "break_minutes_taken": 0,
         "status": status,

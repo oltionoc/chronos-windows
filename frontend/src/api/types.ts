@@ -251,7 +251,7 @@ export interface LeaveRecord {
 }
 
 // ---- Config ----
-export type PenaltyRuleType = 'flat_per_minute' | 'threshold_allowance';
+export type PenaltyRuleType = 'flat_per_minute' | 'threshold_allowance' | 'flat_per_occurrence';
 
 export interface PenaltyConfig {
   id: number;

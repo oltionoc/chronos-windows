@@ -304,6 +304,9 @@ class AttendanceDailyStatus(TimestampMixin, Base):
     actual_last_out: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     late_minutes: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     early_departure_minutes: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    # Count of chargeable events that day (late to work, early from work, a
+    # break that ran long), for the flat_per_occurrence penalty rule.
+    penalty_occurrences: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     overtime_minutes: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     break_minutes_taken: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     status: Mapped[str] = mapped_column(Text, nullable=False)
@@ -437,7 +440,7 @@ class LeaveRecord(TimestampMixin, Base):
 class PenaltyConfig(TimestampMixin, Base):
     __tablename__ = "penalty_config"
     __table_args__ = (
-        CheckConstraint("rule_type in ('flat_per_minute','threshold_allowance')", name="ck_penalty_rule_type"),
+        CheckConstraint("rule_type in ('flat_per_minute','threshold_allowance','flat_per_occurrence')", name="ck_penalty_rule_type"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)

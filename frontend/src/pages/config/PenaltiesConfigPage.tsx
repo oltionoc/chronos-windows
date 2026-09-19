@@ -84,7 +84,7 @@ export function PenaltiesConfigPage() {
       rule_type: form.rule_type,
       rate_per_minute_eur: form.rule_type === 'flat_per_minute' ? form.rate_per_minute_eur : null,
       allowance_minutes: form.rule_type === 'threshold_allowance' ? form.allowance_minutes : null,
-      flat_amount_eur: form.rule_type === 'threshold_allowance' ? form.flat_amount_eur : null,
+      flat_amount_eur: form.rule_type === 'threshold_allowance' || form.rule_type === 'flat_per_occurrence' ? form.flat_amount_eur : null,
       max_daily_penalty_eur: form.max_daily_penalty_eur,
       early_departure_rate_per_minute_eur: form.early_departure_rate_per_minute_eur,
       effective_from: form.effective_from,
@@ -132,7 +132,7 @@ export function PenaltiesConfigPage() {
     {
       key: 'ruleType',
       header: t('config.ruleType'),
-      render: (r) => (r.rule_type === 'flat_per_minute' ? t('config.flatPerMinute') : t('config.thresholdAllowance')),
+      render: (r) => t(`config.penaltyType.${r.rule_type}`),
     },
     {
       key: 'value',
@@ -142,7 +142,9 @@ export function PenaltiesConfigPage() {
         <span className="font-mono">
           {r.rule_type === 'flat_per_minute'
             ? formatCurrency(r.rate_per_minute_eur ?? 0)
-            : `${formatMinutes(r.allowance_minutes ?? 0)} / ${formatCurrency(r.flat_amount_eur ?? 0)}`}
+            : r.rule_type === 'flat_per_occurrence'
+              ? formatCurrency(r.flat_amount_eur ?? 0)
+              : `${formatMinutes(r.allowance_minutes ?? 0)} / ${formatCurrency(r.flat_amount_eur ?? 0)}`}
         </span>
       ),
     },
@@ -176,7 +178,7 @@ export function PenaltiesConfigPage() {
         onRowClick={openEdit}
         emptyMessage={t('config.emptyMessage')}
         mobileExtraRows={(r) => [
-          { label: t('config.ruleType'), value: r.rule_type === 'flat_per_minute' ? t('config.flatPerMinute') : t('config.thresholdAllowance') },
+          { label: t('config.ruleType'), value: t(`config.penaltyType.${r.rule_type}`) },
         ]}
       />
 
@@ -189,11 +191,13 @@ export function PenaltiesConfigPage() {
             options={[
               { value: 'flat_per_minute', label: t('config.flatPerMinute') },
               { value: 'threshold_allowance', label: t('config.thresholdAllowance') },
+              { value: 'flat_per_occurrence', label: t('config.flatPerOccurrence') },
             ]}
           />
-          {form.rule_type === 'flat_per_minute' ? (
+          {form.rule_type === 'flat_per_minute' && (
             <CurrencyInput label={t('config.ratePerMinute')} value={form.rate_per_minute_eur} onChange={(v) => set('rate_per_minute_eur', v)} />
-          ) : (
+          )}
+          {form.rule_type === 'threshold_allowance' && (
             <>
               <Input
                 label={t('config.allowanceMinutes')}
@@ -203,6 +207,12 @@ export function PenaltiesConfigPage() {
                 onChange={(e) => set('allowance_minutes', e.target.value === '' ? null : Number(e.target.value))}
               />
               <CurrencyInput label={t('config.flatAmount')} value={form.flat_amount_eur} onChange={(v) => set('flat_amount_eur', v)} />
+            </>
+          )}
+          {form.rule_type === 'flat_per_occurrence' && (
+            <>
+              <CurrencyInput label={t('config.perOccurrenceAmount')} value={form.flat_amount_eur} onChange={(v) => set('flat_amount_eur', v)} />
+              <p className="text-caption text-neutral-500">{t('config.perOccurrenceHint')}</p>
             </>
           )}
           <Input label={t('config.effectiveFrom')} type="date" required value={form.effective_from} onChange={(e) => set('effective_from', e.target.value)} />

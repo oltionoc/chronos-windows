@@ -133,10 +133,12 @@ def _build_line(db: Session, run_id: int, emp: Employee, period_start: date, per
     for st in statuses:
         wd = st.work_date
 
-        if st.late_minutes or st.early_departure_minutes:
+        if st.late_minutes or st.early_departure_minutes or st.penalty_occurrences:
             total_late_minutes += st.late_minutes
             penalty_cfg = get_effective_config(db, PenaltyConfig, emp.location_id, wd)
-            total_lateness_penalty += _lateness_penalty(penalty_cfg, st.late_minutes, st.early_departure_minutes)
+            total_lateness_penalty += _lateness_penalty(
+                penalty_cfg, st.late_minutes, st.early_departure_minutes, st.penalty_occurrences
+            )
 
         if st.overtime_minutes and not (overtime_needs_approval and st.overtime_approved_at is None):
             iso_year, iso_week, _ = wd.isocalendar()
@@ -196,9 +198,25 @@ def _build_line(db: Session, run_id: int, emp: Employee, period_start: date, per
     )
 
 
-def _lateness_penalty(cfg: PenaltyConfig | None, late_minutes: int, early_departure_minutes: int) -> float:
+def _lateness_penalty(
+    cfg: PenaltyConfig | None,
+    late_minutes: int,
+    early_departure_minutes: int,
+    penalty_occurrences: int = 0,
+) -> float:
     if cfg is None:
         return 0.0
+
+    # flat_per_occurrence: a flat amount for EACH chargeable event that day
+    # (late to work, early from work, an over-long break — counted in
+    # recompute.py as penalty_occurrences). This already covers early
+    # departure and break, so it does NOT also add the per-minute early rate.
+    if cfg.rule_type == "flat_per_occurrence":
+        total = penalty_occurrences * float(cfg.flat_amount_eur or 0)
+        if cfg.max_daily_penalty_eur is not None:
+            total = min(total, float(cfg.max_daily_penalty_eur))
+        return total
+
     lateness = 0.0
     if cfg.rule_type == "flat_per_minute":
         rate = float(cfg.rate_per_minute_eur or 0)

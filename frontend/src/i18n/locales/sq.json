@@ -457,7 +457,15 @@
     "year": "Viti",
     "holidayRecomputeHint": "Ditët e llogaritura ruajnë shifrat derisa t'i rillogarisni nga Statusi Ditor.",
     "deleteHolidayTitle": "Të hiqet kjo festë?",
-    "deleteHolidayDesc": "Ajo datë kthehet në ditë pune normale pas rillogaritjes."
+    "deleteHolidayDesc": "Ajo datë kthehet në ditë pune normale pas rillogaritjes.",
+    "flatPerOccurrence": "Fikse për rast",
+    "perOccurrenceAmount": "Shuma për rast",
+    "perOccurrenceHint": "Ngarkohet për çdo rast: vonesë në punë, dalje e hershme, ose pushim i tejzgjatur.",
+    "penaltyType": {
+      "flat_per_minute": "Për minutë",
+      "threshold_allowance": "Prag + shumë",
+      "flat_per_occurrence": "Fikse për rast"
+    }
   },
   "users": {
     "title": "Llogaritë e Përdoruesve",

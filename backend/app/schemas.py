@@ -422,6 +422,7 @@ class AttendanceDailyStatusOut(BaseModel):
     actual_last_out: datetime | None
     late_minutes: int
     early_departure_minutes: int
+    penalty_occurrences: int = 0
     overtime_minutes: int
     break_minutes_taken: int
     status: DailyStatusValue
@@ -651,7 +652,7 @@ class LeaveActionRequest(BaseModel):
 # Config
 # ---------------------------------------------------------------------------
 
-PenaltyRuleType = Literal["flat_per_minute", "threshold_allowance"]
+PenaltyRuleType = Literal["flat_per_minute", "threshold_allowance", "flat_per_occurrence"]
 
 
 class PenaltyConfigOut(BaseModel):

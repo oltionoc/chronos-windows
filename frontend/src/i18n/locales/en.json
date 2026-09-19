@@ -457,7 +457,15 @@
     "year": "Year",
     "holidayRecomputeHint": "Days already calculated keep their figures until you recompute them from Daily Status.",
     "deleteHolidayTitle": "Remove this holiday?",
-    "deleteHolidayDesc": "That date goes back to being an ordinary working day once recomputed."
+    "deleteHolidayDesc": "That date goes back to being an ordinary working day once recomputed.",
+    "flatPerOccurrence": "Flat per occurrence",
+    "perOccurrenceAmount": "Amount per occurrence",
+    "perOccurrenceHint": "Charged for each event: late to work, early departure, or a break that ran long.",
+    "penaltyType": {
+      "flat_per_minute": "Per minute",
+      "threshold_allowance": "Threshold + amount",
+      "flat_per_occurrence": "Flat per occurrence"
+    }
   },
   "users": {
     "title": "User Accounts",
