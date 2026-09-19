@@ -32,8 +32,11 @@ import type {
   PayrollRunLine,
   PenaltyConfig,
   Role,
+  Roster,
+  RosterEntryIn,
   ShiftSchedule,
   ShiftScheduleDay,
+  ShiftTemplate,
 } from './types';
 
 // ---- Auth (4.1) ----
@@ -184,6 +187,20 @@ export const attendanceApi = {
       method: 'PATCH',
       body: { approved },
     }),
+};
+
+// ---- Rota (shift templates + per-date roster) ----
+export const rotaApi = {
+  templates: (params: { location_id?: number } = {}) =>
+    apiRequest<ShiftTemplate[]>('/shift-templates', { query: params }),
+  createTemplate: (data: Partial<ShiftTemplate>) =>
+    apiRequest<ShiftTemplate>('/shift-templates', { method: 'POST', body: data }),
+  updateTemplate: (id: number, data: Partial<ShiftTemplate>) =>
+    apiRequest<ShiftTemplate>(`/shift-templates/${id}`, { method: 'PUT', body: data }),
+  deleteTemplate: (id: number) => apiRequest<void>(`/shift-templates/${id}`, { method: 'DELETE' }),
+  week: (location_id: number, week_start: string) =>
+    apiRequest<Roster>('/rota', { query: { location_id, week_start } }),
+  save: (entries: RosterEntryIn[]) => apiRequest<void>('/rota', { method: 'PUT', body: { entries } }),
 };
 
 // ---- Holidays (public holiday calendar, 2026-09-17) ----

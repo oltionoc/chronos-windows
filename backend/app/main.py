@@ -19,6 +19,7 @@ from app.routers import (
     locations,
     payroll,
     reports,
+    rota,
     shift_schedules,
     users,
 )
@@ -177,6 +178,7 @@ app.include_router(locations.router, prefix=API_PREFIX)
 app.include_router(devices.router, prefix=API_PREFIX)
 app.include_router(employees.router, prefix=API_PREFIX)
 app.include_router(shift_schedules.router, prefix=API_PREFIX)
+app.include_router(rota.router, prefix=API_PREFIX)
 app.include_router(attendance.router, prefix=API_PREFIX)
 app.include_router(leave.router, prefix=API_PREFIX)
 app.include_router(config_router.router, prefix=API_PREFIX)

@@ -82,7 +82,8 @@
     "settingsProfile": "My Profile",
     "configHolidays": "Holidays",
     "manual": "Manual",
-    "settingsLicense": "Licence"
+    "settingsLicense": "Licence",
+    "rota": "Rota"
   },
   "status": {
     "attendance": {
@@ -583,5 +584,34 @@
     "createAndLink": "Create and link",
     "linked": "Linked to employee",
     "created": "Employee created and linked"
+  },
+  "rota": {
+    "title": "Rota",
+    "subtitle": "Assign each employee a shift for each date. Overrides the weekly schedule for those dates.",
+    "manageShifts": "Manage shifts",
+    "weekly": "Weekly schedule",
+    "dayOff": "Day off",
+    "thisWeek": "This week",
+    "save": "Save rota",
+    "saved": "Rota saved",
+    "unsaved": "You have unsaved changes.",
+    "noEmployees": "No active employees at this location.",
+    "employee": "Employee",
+    "recomputeHint": "After changing the rota, recompute the affected days from Daily Status so the figures update.",
+    "shiftsTitle": "Shifts",
+    "noShifts": "No shifts yet. Create one to assign it in the rota.",
+    "newShift": "New shift",
+    "break": "break",
+    "inactive": "inactive",
+    "deleteShiftTitle": "Delete this shift?",
+    "deleteShiftDesc": "A shift used in the rota cannot be deleted; deactivate it instead.",
+    "shiftName": "Name",
+    "start": "Start",
+    "end": "End",
+    "hasBreak": "Has a break",
+    "breakStart": "Break start",
+    "breakEnd": "Break end",
+    "grace": "Grace minutes",
+    "activeShift": "Active"
   }
 }

@@ -8,6 +8,7 @@ import {
   FileClock,
   CalendarCheck,
   CalendarDays,
+  CalendarRange,
   Wallet,
   Percent,
   Timer,
@@ -46,6 +47,7 @@ const adminNav: NavNode[] = [
   { type: 'separator' },
   { type: 'link', labelKey: 'nav.employees', to: '/employees', icon: Users },
   { type: 'link', labelKey: 'nav.shiftSchedules', to: '/shift-schedules', icon: CalendarClock },
+  { type: 'link', labelKey: 'nav.rota', to: '/rota', icon: CalendarRange },
   { type: 'link', labelKey: 'nav.devices', to: '/devices', icon: HardDrive },
   { type: 'link', labelKey: 'nav.locations', to: '/locations', icon: MapPin },
   { type: 'separator' },
@@ -94,6 +96,7 @@ const managerNav: NavNode[] = [
   { type: 'separator' },
   { type: 'link', labelKey: 'nav.employees', to: '/employees', icon: Users },
   { type: 'link', labelKey: 'nav.shiftSchedules', to: '/shift-schedules', icon: CalendarClock },
+  { type: 'link', labelKey: 'nav.rota', to: '/rota', icon: CalendarRange },
   { type: 'link', labelKey: 'nav.devices', to: '/devices', icon: HardDrive },
   { type: 'separator' },
   {

@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 
 from app.models import AttendanceLog
 from app.services.shift_lookup import (
+    resolve_day,
     get_effective_shift_schedule,
     get_employee_timezone,
     get_schedule_day,
@@ -41,17 +42,16 @@ def classify_employee_date(db: Session, employee_id: int, work_date: date) -> No
     if not logs:
         return
 
-    schedule = get_effective_shift_schedule(db, employee_id, work_date)
-    if schedule is None:
+    resolved = resolve_day(db, employee_id, work_date)
+    if not resolved.scheduled and resolved.source == "none":
         for log in logs:
             log.punch_type = "unclassified"
         return
 
-    day = get_schedule_day(db, schedule, work_date)
-    break_windows = day.break_windows if day is not None else []
+    break_windows = resolved.break_windows
 
     def in_break_window(local_time) -> bool:
-        return any(bw.break_start_time <= local_time <= bw.break_end_time for bw in break_windows)
+        return any(bw.start <= local_time <= bw.end for bw in break_windows)
 
     work_bucket: list[AttendanceLog] = []
     break_bucket: list[AttendanceLog] = []

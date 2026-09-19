@@ -29,6 +29,7 @@ import { OvertimeConfigPage } from './pages/config/OvertimeConfigPage';
 import { AbsenceRuleConfigPage } from './pages/config/AbsenceRuleConfigPage';
 import { HolidaysConfigPage } from './pages/config/HolidaysConfigPage';
 import { LeaveTypesConfigPage } from './pages/config/LeaveTypesConfigPage';
+import { RotaPage } from './pages/rota/RotaPage';
 import { UsersPage } from './pages/settings/UsersPage';
 import { LicensePage } from './pages/settings/LicensePage';
 import { ProfilePage } from './pages/settings/ProfilePage';
@@ -62,6 +63,7 @@ function App() {
             <Route path="/employees/:id" element={<EmployeeDetailPage />} />
             <Route path="/employees/:id/edit" element={<EmployeeFormPage />} />
             <Route path="/shift-schedules" element={<ShiftScheduleListPage />} />
+            <Route path="/rota" element={<RotaPage />} />
             <Route path="/shift-schedules/new" element={<ShiftScheduleFormPage />} />
             <Route path="/shift-schedules/:id/edit" element={<ShiftScheduleFormPage />} />
             <Route path="/devices" element={<DeviceListPage />} />

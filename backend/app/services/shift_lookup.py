@@ -114,3 +114,87 @@ def get_employee_timezone(db: Session, employee_id: int) -> str:
     if employee is None or employee.location is None:
         return "Europe/Tirane"
     return employee.location.timezone or "Europe/Tirane"
+
+
+# ---------------------------------------------------------------------------
+# Unified per-date resolution: rota overrides the weekly schedule.
+# ---------------------------------------------------------------------------
+from dataclasses import dataclass, field  # noqa: E402
+
+
+@dataclass(frozen=True)
+class BreakWin:
+    start: time
+    end: time
+    is_paid: bool
+
+
+@dataclass
+class ResolvedDay:
+    """Everything the classify + recompute paths need for one employee-date,
+    from either the rota or the weekly schedule."""
+
+    scheduled: bool
+    work_windows: list = field(default_factory=list)   # list[(time, time)]
+    break_windows: list = field(default_factory=list)  # list[BreakWin]
+    grace_minutes: int = 0
+    shift_schedule_id: int | None = None  # for display; None for a rota day
+    source: str = "none"                  # 'rota' | 'weekly' | 'none'
+
+
+def get_roster_entry(db: Session, employee_id: int, work_date: date):
+    from app.models import RosterEntry
+
+    return db.execute(
+        select(RosterEntry).where(
+            RosterEntry.employee_id == employee_id,
+            RosterEntry.work_date == work_date,
+        )
+    ).scalar_one_or_none()
+
+
+def resolve_day(db: Session, employee_id: int, work_date: date) -> ResolvedDay:
+    """The shift in force for one employee on one date.
+
+    A rota entry wins: a template gives that date's hours; a NULL template is
+    an explicit day off. With no rota entry, the weekly schedule is used
+    exactly as before (so existing schedules and tests are unchanged)."""
+    from app.models import ShiftTemplate
+
+    entry = get_roster_entry(db, employee_id, work_date)
+    if entry is not None:
+        if entry.shift_template_id is None:
+            return ResolvedDay(scheduled=False, source="rota")
+        tmpl = db.get(ShiftTemplate, entry.shift_template_id)
+        if tmpl is None:
+            return ResolvedDay(scheduled=False, source="rota")
+        breaks = (
+            [BreakWin(tmpl.break_start_time, tmpl.break_end_time, tmpl.break_is_paid)]
+            if tmpl.break_start_time and tmpl.break_end_time
+            else []
+        )
+        return ResolvedDay(
+            scheduled=True,
+            work_windows=[(tmpl.work_start_time, tmpl.work_end_time)],
+            break_windows=breaks,
+            grace_minutes=tmpl.grace_minutes_late or 0,
+            shift_schedule_id=None,
+            source="rota",
+        )
+
+    # Weekly fallback.
+    schedule = get_effective_shift_schedule(db, employee_id, work_date)
+    if schedule is None:
+        return ResolvedDay(scheduled=False, source="none")
+    day = get_schedule_day(db, schedule, work_date)
+    if day is None or not day.is_working_day:
+        return ResolvedDay(scheduled=False, shift_schedule_id=schedule.id, source="weekly")
+    breaks = [BreakWin(b.break_start_time, b.break_end_time, b.is_paid) for b in day.break_windows]
+    return ResolvedDay(
+        scheduled=True,
+        work_windows=get_work_windows(db, day),
+        break_windows=breaks,
+        grace_minutes=schedule.grace_minutes_late or 0,
+        shift_schedule_id=schedule.id,
+        source="weekly",
+    )

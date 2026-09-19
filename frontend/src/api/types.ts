@@ -462,3 +462,36 @@ export interface LicenseStatus {
   expired: boolean;
   expiring_soon: boolean;
 }
+
+
+// ---- Rota ----
+export interface ShiftTemplate {
+  id: number;
+  location_id: number | null;
+  location_name?: string | null;
+  name: string;
+  work_start_time: string;
+  work_end_time: string;
+  break_start_time: string | null;
+  break_end_time: string | null;
+  break_is_paid: boolean;
+  grace_minutes_late: number;
+  is_active: boolean;
+}
+export interface RosterEmployeeRow {
+  employee_id: number;
+  employee_name: string;
+  assignments: Record<string, number | null>; // date -> template id, or null (day off)
+}
+export interface Roster {
+  location_id: number;
+  week_start: string;
+  dates: string[];
+  employees: RosterEmployeeRow[];
+}
+export interface RosterEntryIn {
+  employee_id: number;
+  work_date: string;
+  shift_template_id?: number | null;
+  clear?: boolean;
+}

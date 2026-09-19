@@ -450,6 +450,77 @@ class SetOvertimeApprovalRequest(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Rota (shift templates + per-date roster)
+# ---------------------------------------------------------------------------
+
+
+class ShiftTemplateOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    location_id: int | None
+    location_name: str | None = None
+    name: str
+    work_start_time: time
+    work_end_time: time
+    break_start_time: time | None
+    break_end_time: time | None
+    break_is_paid: bool
+    grace_minutes_late: int
+    is_active: bool
+
+
+class ShiftTemplateCreate(BaseModel):
+    location_id: int | None = None
+    name: str
+    work_start_time: time
+    work_end_time: time
+    break_start_time: time | None = None
+    break_end_time: time | None = None
+    break_is_paid: bool = False
+    grace_minutes_late: int = 0
+    is_active: bool = True
+
+
+class ShiftTemplateUpdate(BaseModel):
+    location_id: int | None = None
+    name: str | None = None
+    work_start_time: time | None = None
+    work_end_time: time | None = None
+    break_start_time: time | None = None
+    break_end_time: time | None = None
+    break_is_paid: bool | None = None
+    grace_minutes_late: int | None = None
+    is_active: bool | None = None
+
+
+class RosterEmployeeRow(BaseModel):
+    employee_id: int
+    employee_name: str
+    # date (ISO) -> shift_template_id, or None for an explicit day off. A date
+    # missing from the map has no rota entry (falls back to the weekly schedule).
+    assignments: dict[str, int | None]
+
+
+class RosterOut(BaseModel):
+    location_id: int
+    week_start: date
+    dates: list[str]
+    employees: list[RosterEmployeeRow]
+
+
+class RosterEntryIn(BaseModel):
+    employee_id: int
+    work_date: date
+    shift_template_id: int | None = None
+    # True removes the entry entirely (falls back to the weekly schedule).
+    clear: bool = False
+
+
+class RosterReplace(BaseModel):
+    entries: list[RosterEntryIn]
+
+
+# ---------------------------------------------------------------------------
 # Licence
 # ---------------------------------------------------------------------------
 

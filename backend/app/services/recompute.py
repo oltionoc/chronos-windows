@@ -25,6 +25,7 @@ from app.services.classify import classify_employee_date
 from app.services.config_lookup import get_effective_config
 from app.services.holiday_lookup import get_holiday
 from app.services.shift_lookup import (
+    resolve_day,
     get_effective_shift_schedule,
     get_employee_timezone,
     get_schedule_day,
@@ -88,23 +89,20 @@ def recompute_employee_date(db: Session, employee_id: int, work_date: date) -> A
 
 def _compute(db: Session, employee_id: int, work_date: date) -> dict:
     tz = ZoneInfo(get_employee_timezone(db, employee_id))
-    schedule = get_effective_shift_schedule(db, employee_id, work_date)
+    # Per-date rota overrides the weekly schedule; resolve_day hides which one
+    # is in force. `shift_schedule_id` is None for a rota day.
+    resolved = resolve_day(db, employee_id, work_date)
+    if not resolved.scheduled:
+        return _blank_result(status="not_scheduled", shift_schedule_id=resolved.shift_schedule_id)
 
-    if schedule is None:
-        return _blank_result(status="not_scheduled")
-
-    day = get_schedule_day(db, schedule, work_date)
-    if day is None or not day.is_working_day:
-        return _blank_result(status="not_scheduled", shift_schedule_id=schedule.id)
-
-    # A weekday can hold several work blocks (split shift). The stored
-    # scheduled_start/scheduled_end stay the day's OUTER bounds — that is what
-    # the attendance table, the payslip and the "not checked in" alert all
-    # want to show — while late/early/overtime are computed per block below
-    # and summed.
-    windows = get_work_windows(db, day)
-    scheduled_start = windows[0][0] if windows else day.work_start_time
-    scheduled_end = windows[-1][1] if windows else day.work_end_time
+    schedule_id = resolved.shift_schedule_id
+    # A day can hold several work blocks (split shift). The stored
+    # scheduled_start/scheduled_end are the day's OUTER bounds — what the
+    # attendance table, the payslip and the "not checked in" alert show — while
+    # late/early/overtime are computed per block below and summed.
+    windows = resolved.work_windows
+    scheduled_start = windows[0][0] if windows else None
+    scheduled_end = windows[-1][1] if windows else None
 
     # Step 2b: a public holiday replaces the working day entirely. Checked
     # BEFORE leave on purpose: a public holiday falling inside someone's
@@ -119,7 +117,8 @@ def _compute(db: Session, employee_id: int, work_date: date) -> dict:
             employee_id,
             work_date,
             tz,
-            schedule,
+            schedule_id,
+            resolved.break_windows,
             scheduled_start,
             scheduled_end,
         )
@@ -136,7 +135,7 @@ def _compute(db: Session, employee_id: int, work_date: date) -> dict:
     if leave is not None:
         return _blank_result(
             status="on_leave",
-            shift_schedule_id=schedule.id,
+            shift_schedule_id=schedule_id,
             scheduled_start=scheduled_start,
             scheduled_end=scheduled_end,
         )
@@ -169,7 +168,7 @@ def _compute(db: Session, employee_id: int, work_date: date) -> dict:
     if not presence:
         return _blank_result(
             status="absent",
-            shift_schedule_id=schedule.id,
+            shift_schedule_id=schedule_id,
             scheduled_start=scheduled_start,
             scheduled_end=scheduled_end,
         )
@@ -177,14 +176,14 @@ def _compute(db: Session, employee_id: int, work_date: date) -> dict:
     actual_first_in = work_in[0].punch_timestamp if work_in else min(l.punch_timestamp for l in presence)
     actual_last_out = work_out[-1].punch_timestamp if work_out else max(l.punch_timestamp for l in presence)
 
-    grace = schedule.grace_minutes_late or 0
+    grace = resolved.grace_minutes
     late_minutes, early_departure_minutes, raw_overtime = _window_deltas(
         windows, work_date, tz, grace, work_in, work_out
     )
 
     overtime_minutes = 0
     if raw_overtime > 0:
-        ot_config = get_effective_config(db, OvertimeConfig, schedule.location_id, work_date)
+        ot_config = get_effective_config(db, OvertimeConfig, employee.location_id if employee else None, work_date)
         if ot_config is not None and ot_config.threshold_basis == "daily":
             threshold = ot_config.daily_threshold_minutes or 0
             overtime_minutes = max(0, raw_overtime - threshold)
@@ -214,7 +213,7 @@ def _compute(db: Session, employee_id: int, work_date: date) -> dict:
     status = "late" if late_minutes > 0 else "present"
 
     return {
-        "shift_schedule_id": schedule.id,
+        "shift_schedule_id": schedule_id,
         "scheduled_start": scheduled_start,
         "scheduled_end": scheduled_end,
         "actual_first_in": actual_first_in,
@@ -249,7 +248,8 @@ def _holiday_result(
     employee_id: int,
     work_date: date,
     tz: ZoneInfo,
-    schedule,
+    shift_schedule_id,
+    break_windows,
     scheduled_start,
     scheduled_end,
 ) -> dict:
@@ -286,7 +286,7 @@ def _holiday_result(
             break_minutes_taken += int((ret.punch_timestamp - departure.punch_timestamp).total_seconds() // 60)
 
     return {
-        "shift_schedule_id": schedule.id,
+        "shift_schedule_id": shift_schedule_id,
         "scheduled_start": scheduled_start,
         "scheduled_end": scheduled_end,
         "actual_first_in": work_in[0].punch_timestamp if work_in else None,

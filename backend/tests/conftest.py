@@ -130,12 +130,14 @@ db.execute(text("DELETE FROM attendance_logs WHERE employee_id IN (SELECT id FRO
 db.execute(text("DELETE FROM attendance_logs WHERE device_id IN (SELECT id FROM devices WHERE label LIKE :p)"), {{"p": like}})
 db.execute(text("DELETE FROM employee_device_enrollments WHERE employee_id IN (SELECT id FROM employees WHERE employee_code LIKE :p)"), {{"p": like}})
 db.execute(text("DELETE FROM employee_device_enrollments WHERE device_id IN (SELECT id FROM devices WHERE label LIKE :p)"), {{"p": like}})
+db.execute(text("DELETE FROM roster_entry WHERE employee_id IN (SELECT id FROM employees WHERE employee_code LIKE :p)"), {{"p": like}})
 db.execute(text("DELETE FROM employee_shift_assignments WHERE employee_id IN (SELECT id FROM employees WHERE employee_code LIKE :p)"), {{"p": like}})
 db.execute(text("DELETE FROM employees WHERE employee_code LIKE :p"), {{"p": like}})
 db.execute(text("DELETE FROM devices WHERE label LIKE :p"), {{"p": like}})
 db.execute(text("DELETE FROM shift_break_windows WHERE shift_schedule_day_id IN (SELECT ssd.id FROM shift_schedule_days ssd JOIN shift_schedules ss ON ss.id = ssd.shift_schedule_id WHERE ss.name LIKE :p)"), {{"p": like}})
 db.execute(text("DELETE FROM shift_schedule_days WHERE shift_schedule_id IN (SELECT id FROM shift_schedules WHERE name LIKE :p)"), {{"p": like}})
 db.execute(text("DELETE FROM shift_schedules WHERE name LIKE :p"), {{"p": like}})
+db.execute(text("DELETE FROM shift_template WHERE location_id IN (SELECT id FROM locations WHERE name LIKE :p) OR name LIKE :p"), {{"p": like}})
 db.execute(text("DELETE FROM holidays WHERE location_id IN (SELECT id FROM locations WHERE name LIKE :p) OR name_en LIKE :p"), {{"p": like}})
 db.execute(text("DELETE FROM penalty_config WHERE location_id IN (SELECT id FROM locations WHERE name LIKE :p)"), {{"p": like}})
 db.execute(text("DELETE FROM overtime_config WHERE location_id IN (SELECT id FROM locations WHERE name LIKE :p)"), {{"p": like}})
@@ -204,11 +206,13 @@ def world(admin_client: httpx.Client):
             "/shift-schedules",
             json={"location_id": location_id, "name": f"QA Sched {sfx} L{location_id}", "grace_minutes_late": 5, "is_active": True},
         ).json()
+        # All 7 days working: several tests ingest punches for "today" and must
+        # not depend on today being a weekday. The payroll fixture only
+        # recomputes Mon-Fri, so weekend days never get a status row and the
+        # absence-count assertions are unaffected.
         days = [
             {"day_of_week": dow, "is_working_day": True, "work_start_time": "09:00:00", "work_end_time": "17:00:00", "break_windows": []}
-            for dow in range(5)
-        ] + [
-            {"day_of_week": dow, "is_working_day": False} for dow in (5, 6)
+            for dow in range(7)
         ]
         r = c.put(f"/shift-schedules/{sched['id']}/days", json={"days": days})
         assert r.status_code == 200, r.text

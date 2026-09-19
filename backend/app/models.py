@@ -322,6 +322,43 @@ class AttendanceDailyStatus(TimestampMixin, Base):
     shift_schedule: Mapped["ShiftSchedule | None"] = relationship()
 
 
+class ShiftTemplate(TimestampMixin, Base):
+    """A named, reusable shift (work window + optional break + grace), used by
+    the per-date rota. `location_id` NULL means available at every location.
+    See migration 0016 and services/shift_lookup.resolve_day."""
+
+    __tablename__ = "shift_template"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    location_id: Mapped[int | None] = mapped_column(ForeignKey("locations.id"), nullable=True)
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    work_start_time: Mapped[str] = mapped_column(Time, nullable=False)
+    work_end_time: Mapped[str] = mapped_column(Time, nullable=False)
+    break_start_time: Mapped[str | None] = mapped_column(Time, nullable=True)
+    break_end_time: Mapped[str | None] = mapped_column(Time, nullable=True)
+    break_is_paid: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
+    grace_minutes_late: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
+
+    location: Mapped["Location | None"] = relationship()
+
+
+class RosterEntry(TimestampMixin, Base):
+    """One employee's shift for one date. `shift_template_id` NULL is an
+    explicit day off. A roster entry overrides the weekly schedule for its
+    date (migration 0016)."""
+
+    __tablename__ = "roster_entry"
+    __table_args__ = (UniqueConstraint("employee_id", "work_date", name="uq_roster_employee_date"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    employee_id: Mapped[int] = mapped_column(ForeignKey("employees.id"), nullable=False)
+    work_date: Mapped[date] = mapped_column(Date, nullable=False)
+    shift_template_id: Mapped[int | None] = mapped_column(ForeignKey("shift_template.id"), nullable=True)
+
+    shift_template: Mapped["ShiftTemplate | None"] = relationship()
+
+
 class LicenseKey(Base):
     """The pasted licence key, one row (id = 1). Absent or invalid -> the app
     uses the built-in default licence. See services/license.py and
