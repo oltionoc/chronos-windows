@@ -22,3 +22,6 @@ packaging/windows/stage/
 packaging/windows/build/
 packaging/windows/downloads/
 packaging/windows/Output/
+
+# Local testing only (frontend port remap when the Windows app holds :8080)
+docker-compose.override.yml
