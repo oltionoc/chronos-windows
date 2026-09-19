@@ -70,6 +70,19 @@ If setup reports a problem, the log is at
    **Licence** → paste it → Install. Otherwise skip; it runs until
    10 November 2026.
 
+### Company logo (optional)
+
+To show the client's own logo across the app (login screen and sidebar) instead
+of the Chronos mark:
+
+1. Save their logo as `logo.png` (a square-ish PNG or SVG works best).
+2. Copy it to `C:\ProgramData\Chronos\branding\logo.png` (the installer creates
+   that folder).
+3. Restart the **ChronosServer** service, or just reload the browser.
+
+If the file is absent the app falls back to the Chronos mark. The Solis Labs
+attribution stays either way.
+
 ### Back up the secrets — off this PC
 
 Copy `C:\ProgramData\Chronos\chronos.env` to a USB stick or somewhere safe.

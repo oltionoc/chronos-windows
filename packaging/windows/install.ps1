@@ -72,7 +72,7 @@ function Wait-Until([scriptblock]$Condition, [int]$Seconds, [string]$What) {
 }
 
 try {
-    foreach ($dir in @($DataDir, $Backups, $LogDir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
+    foreach ($dir in @($DataDir, $Backups, $LogDir, (Join-Path $DataDir 'branding'))) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
 
     # ---- 1. Configuration --------------------------------------------------
     if (-not (Test-Path -LiteralPath $EnvFile)) {
@@ -98,6 +98,7 @@ try {
             'BACKUP_RETENTION_DAYS=14',
             '',
             'DEVICE_TIMEZONE=Europe/Tirane',
+            "BRANDING_LOGO_PATH=$(Join-Path $DataDir 'branding\logo.png')",
             'SYNC_INTERVAL_SECONDS=300',
             'NIGHTLY_HOUR=2',
             'NIGHTLY_MINUTE=0',

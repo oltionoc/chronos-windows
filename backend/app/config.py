@@ -69,6 +69,12 @@ class Settings(BaseSettings):
     server_host: str = "0.0.0.0"
     server_port: int = 8080
 
+    # Optional company logo shown across the web UI (login, sidebar) in place
+    # of the built-in Chronos mark, set once at install time. A path to an
+    # image file (png/svg/jpg); when unset or missing, the UI falls back to
+    # the Chronos mark. The Solis Labs attribution is unaffected.
+    branding_logo_path: str | None = None
+
     @model_validator(mode="after")
     def _reject_insecure_secrets(self) -> "Settings":
         import os

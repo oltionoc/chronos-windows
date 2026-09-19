@@ -9,6 +9,7 @@ from app.models import LicenseKey, User
 from app.routers import (
     attendance,
     auth,
+    branding,
     config as config_router,
     devices,
     employees,
@@ -55,6 +56,8 @@ _PASSWORD_GATE_ALLOWLIST = {
     "/api/v1/auth/me",
     "/api/v1/auth/me/password",
     "/api/v1/auth/logout",
+    # Public branding logo — the UI shows it even on the password-change screen.
+    "/api/v1/branding/logo",
 }
 
 
@@ -123,6 +126,8 @@ _LICENSE_GATE_ALLOWLIST = {
     "/api/v1/auth/logout",
     "/api/v1/auth/me/password",
     "/api/v1/license/status",
+    # Public branding logo — shown on the licence-expired lock screen too.
+    "/api/v1/branding/logo",
 }
 
 
@@ -174,6 +179,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 API_PREFIX = "/api/v1"
 
 app.include_router(auth.router, prefix=API_PREFIX)
+app.include_router(branding.router, prefix=API_PREFIX)
 app.include_router(locations.router, prefix=API_PREFIX)
 app.include_router(devices.router, prefix=API_PREFIX)
 app.include_router(employees.router, prefix=API_PREFIX)
