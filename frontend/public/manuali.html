@@ -623,6 +623,36 @@
         Për të ndryshuar ose hequr një caktim, përdorni <strong>Ndrysho</strong>
         ose <strong>Fshij</strong> në rreshtin përkatës.
       </p>
+
+      <h3>Orari sipas datës (Rota)</h3>
+      <p>
+        Kur stafi rrotullohet — sot paradite, nesër pasdite — orari javor nuk
+        mjafton. <strong>Rota</strong> cakton një turn për një <strong>datë të
+        caktuar</strong>, për secilin punonjës veç e veç.
+      </p>
+      <ol class="steps">
+        <li>
+          <strong>Krijoni shabllonet e turneve</strong> një herë te
+          <strong>Rota → Shabllonet</strong>: p.sh. <em>Paradite</em>
+          <span class="mono">10:00 – 18:00</span> me pushim
+          <span class="mono">13:00 – 13:30</span>, dhe <em>Pasdite</em>
+          <span class="mono">14:00 – 22:00</span>.
+        </li>
+        <li>
+          Hapni <strong>Rota</strong>, zgjidhni lokacionin dhe javën. Shihni një
+          tabelë: çdo punonjës një rresht, shtatë ditët e javës kolona.
+        </li>
+        <li>Në çdo kuti vendosni një shabllon turni, ose e lini ditë pushimi.</li>
+      </ol>
+      <ul>
+        <li>Turni i vendosur në Rota <strong>mbizotëron</strong> orarin javor për atë datë.</li>
+        <li><strong>Kuti bosh</strong> = vlen orari javor i zakonshëm (nuk duhet mbushur çdo ditë).</li>
+        <li><strong>Ditë pushimi</strong> = pa orar atë ditë, pa mungesë, pa penalitet.</li>
+      </ul>
+      <p>
+        Kështu i njëjti person mund të jetë paradite sot dhe pasdite nesër. Një
+        shabllon që është në përdorim nuk mund të fshihet.
+      </p>
     </section>
 
     <section id="s8">
@@ -752,6 +782,19 @@
         Te llojet e lejeve përcaktohet nëse leja është <strong>e paguar</strong>
         apo jo. Ditët e papaguara dalin veçmas te fleta e pagës.
       </p>
+
+      <h3>Leje me orë (gjatë ditës)</h3>
+      <p>
+        Kur dikush largohet vetëm disa orë — me lejen tuaj — dhe kthehet, ose
+        vjen me vonesë a del herët me leje, mos i vendosni leje ditën e tërë. Te
+        <strong>Leje e Re</strong> ndizni <strong>Leje me orë</strong> dhe jepni
+        <strong>orën e fillimit dhe të mbarimit</strong> (vetëm një ditë).
+      </p>
+      <p>
+        Brenda asaj dritareje sistemi nuk e penalizon: vonesa, dalja e
+        parakohshme ose pushimi që mbulon leja nuk numërohen si shkelje. Pjesa
+        tjetër e ditës mbetet punë normale.
+      </p>
     </section>
 
     <section id="s12">
@@ -807,9 +850,18 @@
           <tbody>
             <tr><td>Fiks për minutë</td><td>Tarifa × minutat e vonesës</td><td class="num-col">0.10 € × 20 min = <strong>2.00 €</strong></td></tr>
             <tr><td>Tolerancë me shumë fikse</td><td>Deri në X minuta falet; mbi X zbritet një shumë fikse</td><td class="num-col">deri 10 min falet; 11 min ose 40 min = <strong>5.00 €</strong></td></tr>
+            <tr><td>Fiks për rast</td><td>Një shumë fikse për çdo rast të ngarkueshëm brenda ditës</td><td class="num-col">5.00 € × 3 raste = <strong>15.00 €</strong></td></tr>
           </tbody>
         </table>
       </div>
+      <p>
+        Me mënyrën <strong>Fiks për rast</strong>, çdo ngjarje e ngarkueshme e
+        ditës numërohet veç: vonesa në hyrje, dalja e parakohshme, dhe
+        <strong>pushimi që zgjat më shumë se sa lejohet</strong>. Tri të tilla në
+        një ditë me <span class="mono">5.00 €</span> secila bëjnë
+        <span class="mono">15.00 €</span>. Kështu penalizohet edhe pushimi i
+        gjatë — që më parë nuk numërohej fare.
+      </p>
       <p>
         Mund të vendosni edhe <strong>zbritje maksimale ditore</strong>, që
         askush të mos humbasë më shumë se aq në një ditë, dhe një tarifë të
@@ -885,7 +937,11 @@
       </p>
       <p>
         <strong>Shkarkimi:</strong> butoni i eksportit ju jep dosje Excel, ose
-        të gjithë listën, ose fletë page për një punonjës.
+        të gjithë listën, ose fletë page për një punonjës. Fleta e pagës për një
+        punonjës ka edhe një faqe të dytë <strong>«Daily»</strong> me nga një
+        rresht për çdo ditë të muajit: orari, hyrja dhe dalja, minutat me
+        vonesë, minutat e pushimit dhe orët shtesë — detajet që formojnë totalet
+        mujore.
       </p>
     </section>
 
