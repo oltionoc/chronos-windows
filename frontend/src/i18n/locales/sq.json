@@ -83,7 +83,7 @@
     "configHolidays": "Festat",
     "manual": "Manuali",
     "settingsLicense": "Licenca",
-    "rota": "Orari (Rota)"
+    "rota": "Turnet Ditore"
   },
   "status": {
     "attendance": {
@@ -598,25 +598,25 @@
     "created": "Punonjësi u krijua dhe u lidh"
   },
   "rota": {
-    "title": "Orari (Rota)",
+    "title": "Turnet Ditore",
     "subtitle": "Cakto secilit punonjës një turn për çdo datë. Mbizotëron orarin javor për ato data.",
     "manageShifts": "Menaxho turnet",
     "weekly": "Orari javor",
     "dayOff": "Ditë e lirë",
     "thisWeek": "Kjo javë",
-    "save": "Ruaj rotën",
-    "saved": "Rota u ruajt",
+    "save": "Ruaj turnet ditore",
+    "saved": "Turnet ditore u ruajtën",
     "unsaved": "Keni ndryshime të paruajtura.",
     "noEmployees": "Asnjë punonjës aktiv në këtë lokacion.",
     "employee": "Punonjësi",
-    "recomputeHint": "Pas ndryshimit të rotës, rillogarisni ditët e prekura nga Statusi Ditor që shifrat të përditësohen.",
+    "recomputeHint": "Pas ndryshimit të turneve ditore, rillogarisni ditët e prekura nga Statusi Ditor që shifrat të përditësohen.",
     "shiftsTitle": "Turnet",
-    "noShifts": "Asnjë turn ende. Krijoni një për ta caktuar në rotë.",
+    "noShifts": "Asnjë turn ende. Krijoni një për ta caktuar te turnet ditore.",
     "newShift": "Turn i ri",
     "break": "pushim",
     "inactive": "joaktiv",
     "deleteShiftTitle": "Të fshihet ky turn?",
-    "deleteShiftDesc": "Një turn i përdorur në rotë s'mund të fshihet; çaktivizoje.",
+    "deleteShiftDesc": "Një turn i përdorur te turnet ditore s'mund të fshihet; çaktivizoje.",
     "shiftName": "Emri",
     "start": "Fillimi",
     "end": "Mbarimi",
