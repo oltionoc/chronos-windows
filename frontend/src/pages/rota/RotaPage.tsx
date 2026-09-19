@@ -62,6 +62,7 @@ export function RotaPage() {
   // Pending edits: "empId:date" -> "weekly" | "off" | templateId(as string)
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [copying, setCopying] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
 
   function cellValue(empId: number, date: string): string {
@@ -75,6 +76,51 @@ export function RotaPage() {
 
   function setCell(empId: number, date: string, value: string) {
     setEdits((prev) => ({ ...prev, [`${empId}:${date}`]: value }));
+  }
+
+  // Set one employee's whole visible week to a single shift (or weekly / off).
+  function fillRow(empId: number, value: string) {
+    if (!roster) return;
+    setEdits((prev) => {
+      const next = { ...prev };
+      roster.dates.forEach((d) => {
+        next[`${empId}:${d}`] = value;
+      });
+      return next;
+    });
+  }
+
+  // Pull the previous week's grid into this week as pending edits (same
+  // weekday -> same weekday). Nothing is saved until the user hits Save.
+  async function copyPreviousWeek() {
+    if (!effectiveLocation || !roster) return;
+    setCopying(true);
+    try {
+      const prevIso = iso(new Date(weekStart.getTime() - 7 * 86400000));
+      const prev = await rotaApi.week(effectiveLocation, prevIso);
+      if (!prev) return;
+      setEdits((prevEdits) => {
+        const next = { ...prevEdits };
+        roster.employees.forEach((row) => {
+          const prevRow = prev.employees.find((e) => e.employee_id === row.employee_id);
+          roster.dates.forEach((curDate, i) => {
+            const prevDate = prev.dates[i];
+            let value = WEEKLY;
+            if (prevRow && prevDate in prevRow.assignments) {
+              const v = prevRow.assignments[prevDate];
+              value = v === null ? OFF : String(v);
+            }
+            next[`${row.employee_id}:${curDate}`] = value;
+          });
+        });
+        return next;
+      });
+      showToast('success', t('rota.copiedPrevWeek'));
+    } catch (err) {
+      showToast('error', err instanceof ApiError ? err.message : t('toast.error'));
+    } finally {
+      setCopying(false);
+    }
   }
 
   const dirty = Object.keys(edits).length > 0;
@@ -147,7 +193,10 @@ export function RotaPage() {
               {t('rota.thisWeek')}
             </Button>
           </div>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            <Button variant="secondary" onClick={copyPreviousWeek} loading={copying} disabled={!roster || roster.employees.length === 0}>
+              {t('rota.copyPrevWeek')}
+            </Button>
             <Button onClick={save} loading={saving} disabled={!dirty}>
               {t('rota.save')}
             </Button>
@@ -186,8 +235,21 @@ export function RotaPage() {
               <tbody>
                 {roster.employees.map((row) => (
                   <tr key={row.employee_id} className="border-b border-neutral-100 last:border-0">
-                    <td className="sticky left-0 z-10 bg-white px-3 py-1.5 font-medium text-neutral-800">
-                      {row.employee_name}
+                    <td className="sticky left-0 z-10 bg-white px-3 py-1.5">
+                      <div className="font-medium text-neutral-800">{row.employee_name}</div>
+                      <select
+                        value=""
+                        onChange={(e) => e.target.value && fillRow(row.employee_id, e.target.value)}
+                        className="mt-1 h-6 w-full max-w-[140px] rounded border border-neutral-200 bg-neutral-50 px-1 text-[11px] text-neutral-500 focus:border-primary-600 focus:outline-none"
+                        aria-label={t('rota.fillWeek')}
+                      >
+                        <option value="">{t('rota.fillWeek')}</option>
+                        {options.map((o) => (
+                          <option key={o.value} value={o.value}>
+                            {o.label}
+                          </option>
+                        ))}
+                      </select>
                     </td>
                     {roster.dates.map((d) => {
                       const val = cellValue(row.employee_id, d);

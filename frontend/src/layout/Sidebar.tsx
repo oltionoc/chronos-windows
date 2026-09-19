@@ -6,6 +6,7 @@ import { useAuth } from '../auth/AuthContext';
 import { Logo, LogoLockup } from '../components/ui/Logo';
 import { SolisLabsLogo } from '../components/ui/SolisLabsLogo';
 import { navForRole } from './navConfig';
+import { useShowWeeklySchedule } from '../lib/uiPrefs';
 import type { NavLeaf } from './navConfig';
 
 function NavLinkItem({
@@ -63,8 +64,13 @@ export function SidebarContent({
 }: SidebarContentProps) {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const showWeekly = useShowWeeklySchedule();
   if (!user) return null;
-  const nav = navForRole(user);
+  // Orari Javor (weekly schedule) is hidden from the sidebar unless enabled in
+  // Settings — this client plans per-day in Orari Ditor. The route still works
+  // and the weekly fallback still applies server-side; only the link hides.
+  const nav = navForRole(user)
+    .filter((node) => showWeekly || node.type !== 'link' || node.labelKey !== 'nav.shiftSchedules');
 
   return (
     <div className="flex h-full flex-col bg-sidebar">

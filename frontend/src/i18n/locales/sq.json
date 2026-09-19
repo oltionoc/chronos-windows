@@ -508,7 +508,10 @@
     "mustChangeNotice": "Duhet të vendosni një fjalëkalim të ri para se të vazhdoni.",
     "languageSection": "Gjuha",
     "languageAlbanian": "Shqip",
-    "languageEnglish": "English"
+    "languageEnglish": "English",
+    "displaySection": "Pamja",
+    "showWeeklySchedule": "Shfaq Orarin Javor në menu",
+    "showWeeklyScheduleHint": "Orari Javor është i fshehur sepse turnet planifikohen te Orari Ditor. Ndizeni nëse doni ta shihni orarin fiks javor. (Rezerva javore vazhdon të vlejë edhe kur është i fshehur.)"
   },
   "form": {
     "unsavedTitle": "Të hidhen poshtë ndryshimet?"
@@ -624,6 +627,9 @@
     "breakStart": "Fillimi i pushimit",
     "breakEnd": "Mbarimi i pushimit",
     "grace": "Minuta tolerance",
-    "activeShift": "Aktiv"
+    "activeShift": "Aktiv",
+    "copyPrevWeek": "Kopjo javën e kaluar",
+    "copiedPrevWeek": "U kopjua java e kaluar — shtypni Ruaj për ta zbatuar.",
+    "fillWeek": "Mbush javën…"
   }
 }

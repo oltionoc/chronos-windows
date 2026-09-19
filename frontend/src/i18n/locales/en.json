@@ -508,7 +508,10 @@
     "mustChangeNotice": "You must set a new password before continuing.",
     "languageSection": "Language",
     "languageAlbanian": "Shqip",
-    "languageEnglish": "English"
+    "languageEnglish": "English",
+    "displaySection": "Display",
+    "showWeeklySchedule": "Show Weekly Schedule in the menu",
+    "showWeeklyScheduleHint": "Weekly Schedule is hidden because shifts are planned in Daily Schedule. Turn this on to see the fixed weekly view. (The weekly fallback still applies even when hidden.)"
   },
   "form": {
     "unsavedTitle": "Discard changes?"
@@ -624,6 +627,9 @@
     "breakStart": "Break start",
     "breakEnd": "Break end",
     "grace": "Grace minutes",
-    "activeShift": "Active"
+    "activeShift": "Active",
+    "copyPrevWeek": "Copy previous week",
+    "copiedPrevWeek": "Previous week copied — press Save to apply.",
+    "fillWeek": "Fill week…"
   }
 }
