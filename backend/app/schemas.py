@@ -627,6 +627,8 @@ class LeaveRecordOut(BaseModel):
     leave_type_name_sq: str | None = None
     start_date: date
     end_date: date
+    start_time: time | None = None
+    end_time: time | None = None
     status: LeaveStatus
     requested_by_user_id: int
     requested_by_name: str | None = None
@@ -641,6 +643,10 @@ class LeaveRecordCreate(BaseModel):
     leave_type_id: int
     start_date: date
     end_date: date
+    # Partial-day (hourly) leave: set both for a permission window on a single
+    # day; leave both empty for a full-day leave.
+    start_time: time | None = None
+    end_time: time | None = None
     notes: str | None = None
 
 

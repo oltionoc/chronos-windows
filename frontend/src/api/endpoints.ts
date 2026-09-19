@@ -238,6 +238,8 @@ export const leaveApi = {
     leave_type_id: number;
     start_date: string;
     end_date: string;
+    start_time?: string | null;
+    end_time?: string | null;
     notes?: string;
   }) => apiRequest<LeaveRecord>('/leave-records', { method: 'POST', body: data }),
   bulkImport: (file: File) => apiUpload<BulkImportResult>('/leave-records/bulk-import', file),

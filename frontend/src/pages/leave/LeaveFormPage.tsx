@@ -30,6 +30,9 @@ export function LeaveFormPage() {
   const [leaveTypeId, setLeaveTypeId] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [hourly, setHourly] = useState(false);
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [notes, setNotes] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -40,7 +43,12 @@ export function LeaveFormPage() {
     if (!employeeId) next.employee_id = t('common.required');
     if (!leaveTypeId) next.leave_type_id = t('common.required');
     if (!startDate) next.start_date = t('common.required');
-    if (!endDate) next.end_date = t('common.required');
+    if (!hourly && !endDate) next.end_date = t('common.required');
+    if (hourly) {
+      if (!startTime) next.start_time = t('common.required');
+      if (!endTime) next.end_time = t('common.required');
+      if (startTime && endTime && endTime <= startTime) next.end_time = t('common.required');
+    }
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -55,7 +63,9 @@ export function LeaveFormPage() {
         employee_id: Number(employeeId),
         leave_type_id: Number(leaveTypeId),
         start_date: startDate,
-        end_date: endDate,
+        end_date: hourly ? startDate : endDate,
+        start_time: hourly ? startTime : null,
+        end_time: hourly ? endTime : null,
         notes: notes || undefined,
       });
       showToast('success', t('toast.created'));
@@ -96,8 +106,23 @@ export function LeaveFormPage() {
             />
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <Input label={t('leave.startDate')} type="date" required value={startDate} onChange={(e) => setStartDate(e.target.value)} error={errors.start_date} />
-              <Input label={t('leave.endDate')} type="date" required value={endDate} onChange={(e) => setEndDate(e.target.value)} error={errors.end_date} />
+              {!hourly && (
+                <Input label={t('leave.endDate')} type="date" required value={endDate} onChange={(e) => setEndDate(e.target.value)} error={errors.end_date} />
+              )}
             </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={hourly} onChange={(e) => setHourly(e.target.checked)} />
+              {t('leave.hourlyLeave')}
+            </label>
+            {hourly && (
+              <>
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <Input label={t('leave.startTime')} type="time" required value={startTime} onChange={(e) => setStartTime(e.target.value)} error={errors.start_time} />
+                  <Input label={t('leave.endTime')} type="time" required value={endTime} onChange={(e) => setEndTime(e.target.value)} error={errors.end_time} />
+                </div>
+                <p className="text-xs text-neutral-500">{t('leave.hourlyHint')}</p>
+              </>
+            )}
             <Textarea label={t('leave.notesOptional')} value={notes} onChange={(e) => setNotes(e.target.value)} />
           </FormSection>
         </Card>

@@ -333,7 +333,11 @@
     "detailTitle": "Leave Request",
     "deleteConfirmTitle": "Delete Leave Request",
     "deleteConfirmDesc": "This will permanently delete this leave request. This cannot be undone.",
-    "notesOptional": "Notes (optional)"
+    "notesOptional": "Notes (optional)",
+    "hourlyLeave": "Hourly leave (single day)",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "hourlyHint": "The employee is away only within this window; lateness or early departure the leave covers is not penalised."
   },
   "payroll": {
     "runsTitle": "Payroll Runs",

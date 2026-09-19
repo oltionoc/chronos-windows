@@ -333,7 +333,11 @@
     "detailTitle": "Kërkesë për Leje",
     "deleteConfirmTitle": "Fshij Kërkesën për Leje",
     "deleteConfirmDesc": "Kjo do të fshijë përgjithmonë këtë kërkesë leje. Nuk mund të zhbëhet.",
-    "notesOptional": "Shënime (opsionale)"
+    "notesOptional": "Shënime (opsionale)",
+    "hourlyLeave": "Leje me orë (vetëm një ditë)",
+    "startTime": "Ora e Fillimit",
+    "endTime": "Ora e Mbarimit",
+    "hourlyHint": "Punonjësi mungon vetëm brenda këtij intervali; vonesa apo largimi që mbulon leja nuk ndëshkohet."
   },
   "payroll": {
     "runsTitle": "Listat e Pagave",

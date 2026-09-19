@@ -425,6 +425,11 @@ class LeaveRecord(TimestampMixin, Base):
     leave_type_id: Mapped[int] = mapped_column(ForeignKey("leave_types.id"), nullable=False)
     start_date: Mapped[str] = mapped_column(Date, nullable=False)
     end_date: Mapped[str] = mapped_column(Date, nullable=False)
+    # Partial-day (hourly) leave: when both are set, the leave covers only this
+    # window on start_date (== end_date) and the employee still works the rest
+    # of the shift. Both NULL = full-day leave. See migration 0018.
+    start_time: Mapped[str | None] = mapped_column(Time, nullable=True)
+    end_time: Mapped[str | None] = mapped_column(Time, nullable=True)
     status: Mapped[str] = mapped_column(Text, nullable=False, server_default="pending")
     requested_by_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     approved_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)

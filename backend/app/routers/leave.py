@@ -130,6 +130,14 @@ def create_leave_record(payload: LeaveRecordCreate, db: Session = Depends(get_db
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Leave type not found")
     if payload.end_date < payload.start_date:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="End date must be on or after start date")
+    # Partial (hourly) leave: both times set, single day, end after start.
+    if (payload.start_time is None) != (payload.end_time is None):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="A partial leave needs both a start and an end time")
+    if payload.start_time is not None:
+        if payload.start_date != payload.end_date:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="An hourly leave must be on a single day")
+        if payload.end_time <= payload.start_time:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="The leave must end after it starts")
 
     # LeaveType.requires_approval was previously configurable but unused —
     # a "false" leave type still landed as "pending" forever. Now honored:
@@ -141,6 +149,8 @@ def create_leave_record(payload: LeaveRecordCreate, db: Session = Depends(get_db
         leave_type_id=payload.leave_type_id,
         start_date=payload.start_date,
         end_date=payload.end_date,
+        start_time=payload.start_time,
+        end_time=payload.end_time,
         notes=payload.notes,
         requested_by_user_id=user.id,
         status="approved" if auto_approved else "pending",

@@ -123,22 +123,27 @@ def _compute(db: Session, employee_id: int, work_date: date) -> dict:
             scheduled_end,
         )
 
-    # Step 3: approved leave overlapping this date takes precedence over punches.
-    leave = db.execute(
+    # Step 3: approved leave overlapping this date. A FULL-day leave (no times)
+    # takes precedence over punches — the whole day is on_leave. PARTIAL leave
+    # (a start_time/end_time window) does not: the employee still works the
+    # rest of the shift, and the window only EXCUSES penalties inside it, which
+    # is applied further down.
+    leaves = db.execute(
         select(LeaveRecord).where(
             LeaveRecord.employee_id == employee_id,
             LeaveRecord.status == "approved",
             LeaveRecord.start_date <= work_date,
             LeaveRecord.end_date >= work_date,
         )
-    ).scalar_one_or_none()
-    if leave is not None:
+    ).scalars().all()
+    if any(lv.start_time is None for lv in leaves):
         return _blank_result(
             status="on_leave",
             shift_schedule_id=schedule_id,
             scheduled_start=scheduled_start,
             scheduled_end=scheduled_end,
         )
+    excused_windows = [(lv.start_time, lv.end_time) for lv in leaves if lv.start_time and lv.end_time]
 
     # Step 4: classify (using the currently-effective schedule) then read punches.
     classify_employee_date(db, employee_id, work_date)
@@ -181,6 +186,17 @@ def _compute(db: Session, employee_id: int, work_date: date) -> dict:
         windows, work_date, tz, grace, work_in, work_out
     )
 
+    # Partial-leave (hourly permission) excuses penalties inside its window:
+    # a late arrival is forgiven when the permission covers the shift start, an
+    # early departure when it covers the shift end (client req 4, 6, 14). The
+    # minutes are still shown; they just do not become a chargeable event.
+    late_excused = any(w_start <= scheduled_start for (w_start, w_end) in excused_windows) if scheduled_start else False
+    early_excused = any(w_end >= scheduled_end for (w_start, w_end) in excused_windows) if scheduled_end else False
+    if late_excused:
+        late_minutes = 0
+    if early_excused:
+        early_departure_minutes = 0
+
     overtime_minutes = 0
     if raw_overtime > 0:
         ot_config = get_effective_config(db, OvertimeConfig, employee.location_id if employee else None, work_date)
@@ -218,7 +234,13 @@ def _compute(db: Session, employee_id: int, work_date: date) -> dict:
         int((datetime.combine(work_date, bw.end) - datetime.combine(work_date, bw.start)).total_seconds() // 60)
         for bw in resolved.break_windows
     )
-    break_violation = 1 if resolved.break_windows and break_minutes_taken > allowed_break + grace else 0
+    # A permission overlapping the break window excuses an over-long break too.
+    break_excused = any(
+        bw.start <= w_end and w_start <= bw.end for bw in resolved.break_windows for (w_start, w_end) in excused_windows
+    )
+    break_violation = (
+        1 if resolved.break_windows and break_minutes_taken > allowed_break + grace and not break_excused else 0
+    )
     penalty_occurrences = (1 if late_minutes > 0 else 0) + (1 if early_departure_minutes > 0 else 0) + break_violation
 
     status = "late" if late_minutes > 0 else "present"
