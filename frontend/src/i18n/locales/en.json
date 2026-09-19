@@ -62,7 +62,7 @@
     "dashboard": "Dashboard",
     "alerts": "Alerts",
     "employees": "Employees",
-    "shiftSchedules": "Shift Schedules",
+    "shiftSchedules": "Weekly Schedule",
     "devices": "Devices",
     "locations": "Locations",
     "attendance": "Attendance",
@@ -83,7 +83,7 @@
     "configHolidays": "Holidays",
     "manual": "Manual",
     "settingsLicense": "Licence",
-    "rota": "Daily Shifts"
+    "rota": "Daily Schedule"
   },
   "status": {
     "attendance": {
@@ -195,7 +195,7 @@
     "deleteAssignmentDesc": "Days already computed keep their figures until you recompute them."
   },
   "shiftSchedules": {
-    "title": "Shift Schedules",
+    "title": "Weekly Schedule",
     "newSchedule": "New Schedule",
     "name": "Name",
     "location": "Location",
@@ -598,25 +598,25 @@
     "created": "Employee created and linked"
   },
   "rota": {
-    "title": "Daily Shifts",
+    "title": "Daily Schedule",
     "subtitle": "Assign each employee a shift for each date. Overrides the weekly schedule for those dates.",
     "manageShifts": "Manage shifts",
     "weekly": "Weekly schedule",
     "dayOff": "Day off",
     "thisWeek": "This week",
-    "save": "Save daily shifts",
-    "saved": "Daily shifts saved",
+    "save": "Save daily schedule",
+    "saved": "Daily schedule saved",
     "unsaved": "You have unsaved changes.",
     "noEmployees": "No active employees at this location.",
     "employee": "Employee",
-    "recomputeHint": "After changing the daily shifts, recompute the affected days from Daily Status so the figures update.",
+    "recomputeHint": "After changing the daily schedule, recompute the affected days from Daily Status so the figures update.",
     "shiftsTitle": "Shifts",
-    "noShifts": "No shifts yet. Create one to assign it in the daily shifts.",
+    "noShifts": "No shifts yet. Create one to assign it in the daily schedule.",
     "newShift": "New shift",
     "break": "break",
     "inactive": "inactive",
     "deleteShiftTitle": "Delete this shift?",
-    "deleteShiftDesc": "A shift used in the daily shifts cannot be deleted; deactivate it instead.",
+    "deleteShiftDesc": "A shift used in the daily schedule cannot be deleted; deactivate it instead.",
     "shiftName": "Name",
     "start": "Start",
     "end": "End",
